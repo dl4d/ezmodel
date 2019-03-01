@@ -2,17 +2,25 @@ import pickle
 from zipfile import ZipFile
 import os
 import time
+from keras.models import load_model
 
 class ezmodel:
 
     def __init__(self, load = None, type = None):
 
-        data    = None
-        trainer = None
-        type    = None
+        self.data    = None
+        self.trainer = None
+        self.type    = None
 
         if type is not None:
             self.type = type
+
+        if load is not None:
+            if type is not None:
+                print ("[Fail] ezmodel(): You cannot pass 'load' and 'type' arguments at the same time !")
+                return
+            else:
+                self.load(load)
 
 
     def assign(self,data,trainer):
@@ -76,6 +84,7 @@ class ezmodel:
 
         filehandler = open(filename+".pkl","wb")
         pickle.dump(self,filehandler)
+        filehandler.close()
         print("--- EZ data has been saved in     :",filename,".pkl")
         print("\n")
 
@@ -83,6 +92,33 @@ class ezmodel:
             myzip.write(filename+".h5")
             myzip.write(filename+".pkl")
 
-        time.sleep(5)
+        #time.sleep(5)
         os.remove(filename+".h5")
         os.remove(filename+".pkl")
+
+    def load(self,filename):
+
+        if not os.path.isfile(filename+".zip"):
+            print("[Fail] ezmodel(load) : ", filename,".zip has not been found !")
+            return
+
+
+        zip_ref = ZipFile(filename+".zip", 'r')
+        zip_ref.extractall(".")
+        zip_ref.close()
+
+        filehandler = open(filename+".pkl", 'rb')
+        tmp = pickle.load(filehandler)
+        filehandler.close()
+
+        self.data = tmp.data
+        self.trainer = tmp.trainer
+        self.type = tmp.type
+
+
+        self.trainer.network = load_model(filename+".h5")
+
+        os.remove(filename+".h5")
+        os.remove(filename+".pkl")
+
+        print("[X]Ezmodel loaded successfully !")

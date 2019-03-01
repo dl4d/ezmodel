@@ -6,6 +6,7 @@ from ezmodel.ezdata    import ezdata
 from ezmodel.eztrainer import eztrainer
 # [EZ MODEL initialization]
 ez_model = ezmodel(type="classification")
+print(ez_model.type)
 
 # ----------------------------  [EZ Data]  -----------------------------------
 parameters = {
@@ -70,6 +71,3 @@ ez_model.evaluate()
 
 # --------------------------     [EZ Save]    ---------------------------------
 ez_model.save("model0")
-
-
-# ez.save("model0")

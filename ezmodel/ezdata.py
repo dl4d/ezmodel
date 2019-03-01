@@ -12,7 +12,7 @@ from keras.utils import to_categorical
 class ezdata:
     def __init__(self,parameters=None):
 
-        params      = None
+        self.params      = None
 
         if parameters is None:
             print("[Fail] ezdata() : Please provide a parameter list to instantiate ezdata object !")

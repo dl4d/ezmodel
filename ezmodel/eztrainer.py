@@ -6,11 +6,11 @@ class eztrainer:
 
     def __init__(self):
 
-        network = None
-        X_train = None
-        y_train = None
-        X_valid = None
-        y_valid = None
+        self.network = None
+        self.X_train = None
+        self.y_train = None
+        self.X_valid = None
+        self.y_valid = None
 
     def gen_trainval(self,ezdata,size=0.2,random_state=42):
 
