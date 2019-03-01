@@ -285,7 +285,7 @@ class ezdata:
 
 
 
-    def is_kernel():
+    def is_kernel(self):
         if 'IPython' not in sys.modules:
             # IPython hasn't been imported, definitely not
             return False
@@ -296,12 +296,12 @@ class ezdata:
     def show_table(self,filename=None,head=None):
         if hasattr(self,"table"):
             if head==None:
-                if not is_kernel():
+                if not self.is_kernel():
                     print(self.table)
                 else:
                     self.table
             else:
-                if not is_kernel():
+                if not self.is_kernel():
                     print(self.table.head(head))
                 else:
                     self.table.head(head)
@@ -311,12 +311,12 @@ class ezdata:
             else:
                 d = pd.read_csv(filename)
                 if head==None:
-                    if not is_kernel():
+                    if not self.is_kernel():
                         print(d)
                     else:
                         d
                 else:
-                    if not is_kernel():
+                    if not self.is_kernel():
                         print(d.head(head))
                     else:
                         d.head(head)
