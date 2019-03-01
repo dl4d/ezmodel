@@ -1,0 +1,5 @@
+
+1. EZ transfer Learning
+
+2. When a EZmodel object is saved when we used a custom loss (dice_coefficient for example), the custom is not saved
+je pense que c'est un problème interne à Keras ... à voir.

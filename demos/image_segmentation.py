@@ -35,6 +35,7 @@ import keras
 #Make the segmentation network automatically using unet
 ez_trainer.Network(name="unet")
 
+
 # -- Keras optimizer --
 optimizer = {
     "optimizer" : keras.optimizers.Adam(lr=1e-5),
@@ -59,4 +60,4 @@ ez_model.train(parameters) #Check that we have both ez_data and ez_trainer set
 ez_model.evaluate()
 #
 # # --------------------------     [EZ Save]    ---------------------------------
-ez_model.save("blob")
+#ez_model.save("blob")

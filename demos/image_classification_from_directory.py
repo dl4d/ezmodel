@@ -32,21 +32,22 @@ import keras
 from keras.layers import Conv2D,Activation,MaxPooling2D,Flatten,Dense
 
 
-
 #  -- Keras network --
-inputs = ez_trainer.Input()
-x = Conv2D(6, kernel_size = (5, 5), strides=(1,1), padding="valid",input_shape=(32, 32, 1)) (inputs)
-x = Activation("relu") (x)
-x = MaxPooling2D(pool_size=(2, 2), strides=(2, 2)) (x)
-x = Conv2D(16, kernel_size = (5, 5), strides=(1,1), padding="valid") (x)
-x = Activation("relu") (x)
-x = MaxPooling2D(pool_size=(2, 2), strides=(2, 2)) (x)
-x = Flatten() (x)
-x = Dense(120) (x)
-x = Dense(84) (x)
-outputs = ez_trainer.ClassificationOutput(x)
+# inputs = ez_trainer.Input()
+# x = Conv2D(6, kernel_size = (5, 5), strides=(1,1), padding="valid",input_shape=(32, 32, 1)) (inputs)
+# x = Activation("relu") (x)
+# x = MaxPooling2D(pool_size=(2, 2), strides=(2, 2)) (x)
+# x = Conv2D(16, kernel_size = (5, 5), strides=(1,1), padding="valid") (x)
+# x = Activation("relu") (x)
+# x = MaxPooling2D(pool_size=(2, 2), strides=(2, 2)) (x)
+# x = Flatten() (x)
+# x = Dense(120) (x)
+# x = Dense(84) (x)
+# outputs = ez_trainer.ClassificationOutput(x)
+# ez_trainer.gen_network(inputs,outputs)
 
-ez_trainer.gen_network(inputs,outputs)
+ez_trainer.Network(name="LeNet5")
+
 
 # -- Keras optimizer --
 optimizer = {

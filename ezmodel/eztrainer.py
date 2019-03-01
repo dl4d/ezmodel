@@ -62,6 +62,28 @@ class eztrainer:
         if name.lower() == "unet":
             self.network = self.Network_UNET(parameters)
 
+        if name.lower() == "lenet5":
+            self.network = self.Network_LENET5(parameters)
+
+    def Network_LENET5(self,parameters):
+
+        #  -- Keras network --
+        inputs = self.Input()
+        x = Conv2D(6, kernel_size = (5, 5), strides=(1,1), padding="valid",input_shape=(32, 32, 1)) (inputs)
+        x = Activation("relu") (x)
+        x = MaxPooling2D(pool_size=(2, 2), strides=(2, 2)) (x)
+        x = Conv2D(16, kernel_size = (5, 5), strides=(1,1), padding="valid") (x)
+        x = Activation("relu") (x)
+        x = MaxPooling2D(pool_size=(2, 2), strides=(2, 2)) (x)
+        x = Flatten() (x)
+        x = Dense(120) (x)
+        x = Dense(84) (x)
+        outputs = self.ClassificationOutput(x)
+
+        model = Model(inputs=[inputs], outputs=[outputs])
+        return model
+
+
 
     # UNET network
     def Network_UNET(self,parameters):
@@ -124,12 +146,14 @@ class ezoptimizer:
     def loss(self,name=None):
         if name is None:
             raise Exception("[Fail] eztrainer.ezoptimizer.loss() : Please provide a loss name for the optimizer")
+
         if name == "dice_coefficient":
             return self.dice_coef_loss
 
     def metrics(self,name=None):
         if name is None:
             raise Exception("[Fail] eztrainer.ezoptimizer.metrics() : Please provide a metrics name for the optimizer")
+
         if name == "dice_coefficient":
             return [self.dice_coef]
 
