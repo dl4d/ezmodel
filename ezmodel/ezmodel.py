@@ -1,6 +1,7 @@
 import pickle
 from zipfile import ZipFile
 import os
+import time
 
 class ezmodel:
 
@@ -82,5 +83,6 @@ class ezmodel:
             myzip.write(filename+".h5")
             myzip.write(filename+".pkl")
 
+        time.sleep(5)
         os.remove(filename+".h5")
         os.remove(filename+".pkl")
