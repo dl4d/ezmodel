@@ -19,7 +19,7 @@ parameters = {
     "path"                      : "C:\\Users\\daian\\Desktop\\DATA\\bacteria_csv\\bacteria.csv",
     "table_delimiter"           : "\t",
     "table_target_column"       : ["Label"],
-    "table_target_column_type"  : "number"
+    "table_target_column_type"  : "number",
     "table_drop_column"         : ["Id"]
 }
 
