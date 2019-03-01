@@ -294,17 +294,18 @@ class ezdata:
         return getattr(get_ipython(), 'kernel', None) is not None
 
     def show_table(self,filename=None,head=None):
+        from IPython.display import display
         if hasattr(self,"table"):
             if head==None:
                 if not self.is_kernel():
                     print(self.table)
                 else:
-                    self.table
+                    display(self.table)
             else:
                 if not self.is_kernel():
                     print(self.table.head(head))
                 else:
-                    self.table.head(head)
+                    display(self.table.head(head))
         else:
             if filename is None:
                 raise Exception('[Fail] ezdata.show_table() : Please provide a filename !')
@@ -314,9 +315,9 @@ class ezdata:
                     if not self.is_kernel():
                         print(d)
                     else:
-                        d
+                        display(d)
                 else:
                     if not self.is_kernel():
                         print(d.head(head))
                     else:
-                        d.head(head)
+                        display(d.head(head))

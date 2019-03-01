@@ -10,4 +10,6 @@ from ezmodel.eztrainer import eztrainer
 
 ez_data = ezdata()
 
+print(ez_data.is_kernel())
+
 ez_data.show_table(filename="C:\\Users\\daian\\Desktop\\DATA\\Iris\\iris.csv")
