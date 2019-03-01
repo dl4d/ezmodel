@@ -66,13 +66,61 @@ class ezdata:
         #     self.import_classification_table(parameters)
         #     return
 
+
     def import_classification_images_from_index(self,parameters):
         print('TODO: import_classification_images_from_index()')
         return
 
+    #SEGMENTATION IMAGES from DIRECTORY
     def import_segmentation_images(self,parameters):
-        print('TODO: import_segmentation_images()')
-        return
+
+        images =[]
+        image_paths=[]
+        masks =[]
+        mask_paths=[]
+
+        if not os.path.isdir(parameters["path"]):
+            raise Exception("[Fail] ezdata.import_classification_images() : Path in parameters is not a directory !")
+
+        if not os.path.isdir(parameters["path_mask"]):
+            raise Exception("[Fail] ezdata.import_classification_images() : Path Mask in parameters is not a directory !")
+
+        #Images
+        print ('[X] Loading Images:', parameters["path"])
+        i=0
+        for filename in os.listdir(parameters["path"]):
+            curimg = os.path.join(parameters["path"], filename)
+            img = Image.open(curimg)
+            images.append(img)
+            image_paths.append(curimg)
+            i=i+1
+        tot=i
+        print ('--- Total images :', str(tot))
+        self.images = images
+        self.image_paths = image_paths
+
+        #Masks
+        print ('[X] Loading Masks:', parameters["path_mask"])
+        i=0
+        for filename in os.listdir(parameters["path_mask"]):
+            curimg = os.path.join(parameters["path_mask"], filename)
+            img = Image.open(curimg)
+            masks.append(img)
+            mask_paths.append(curimg)
+            i=i+1
+        tot=i
+        print ('--- Total images :', str(tot))
+        self.masks = masks
+        self.mask_paths = mask_paths
+
+
+        print("\n")
+
+        if "resize" in self.params:
+          self.images_masks_to_keras(self.params["resize"])
+        else:
+          self.images_masks_to_keras()
+
 
     #CLASSIFICATION IMAGES from CSVTABLE annuaire
 
@@ -191,6 +239,51 @@ class ezdata:
           self.images_to_keras()
 
 
+
+    def images_masks_to_keras(self,resize=None):
+
+        #Images
+        im=[]
+        for image in self.images:
+            r = image
+            if resize is not None:
+                r = image.resize((resize[0],resize[1]), Image.NEAREST)
+            im.append(r)
+        imgarray=list();
+        for i in range(len(im)):
+            tmp = np.array(im[i])
+            imgarray.append(tmp)
+        imgarray = np.asarray(imgarray)
+
+        if len(imgarray.shape)==1:
+            raise Exception("[Fail] images_to_keras() : Image size heterogeneity !  Size of images into the dataset are not the same. You should try to use 'resize' parameters to make them homogenous.")
+        if len(imgarray.shape)==3:
+            imgarray = np.expand_dims(imgarray,axis=3)
+        self.X = imgarray.astype('float32')
+
+        #Masks
+        im=[]
+        for image in self.masks:
+            r = image
+            if resize is not None:
+                r = image.resize((resize[0],resize[1]), Image.NEAREST)
+            im.append(r)
+        imgarray=list();
+        for i in range(len(im)):
+            tmp = np.array(im[i])
+            imgarray.append(tmp)
+        imgarray = np.asarray(imgarray)
+
+        if len(imgarray.shape)==1:
+            raise Exception("[Fail] images_to_keras() : Masks size heterogeneity !  Size of Masks into the dataset are not the same. You should try to use 'resize' parameters to make them homogenous.")
+        if len(imgarray.shape)==3:
+            imgarray = np.expand_dims(imgarray,axis=3)
+        self.y = imgarray.astype('float32')
+
+
+        print ("[X] Images & Masks conversion to Keras format: Done")
+        print ("--- 'X' and 'y' tensors have been created into current ezdata object.")
+        print("\n")
 
 
     def images_to_keras(self,resize=None):
@@ -385,7 +478,7 @@ class ezdata:
                 for delim in [",",";"," ","\t"]:
                     d = pd.read_csv(filename,delimiter=delim)
                     if d.columns.shape[0] != 1:
-                        print("[Notice] Found a delimiter !")
+                        #print("[Notice] Found a delimiter !")
                         found = True
                         break
 
