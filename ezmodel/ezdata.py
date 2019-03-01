@@ -380,7 +380,15 @@ class ezdata:
             if filename is None:
                 raise Exception('[Fail] ezdata.show_table() : Please provide a filename !')
             else:
-                d = pd.read_csv(filename)
+                #d = pd.read_csv(filename)
+                found = False
+                for delim in [",",";"," ","\t"]:
+                    d = pd.read_csv(filename,delimiter=delim)
+                    if d.columns.shape[0] != 1:
+                        print("[Notice] Found a delimiter !")
+                        found = True
+                        break
+
                 if head==None:
                     if not self.is_kernel():
                         print(d)
