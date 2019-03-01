@@ -284,18 +284,39 @@ class ezdata:
         self.__dict__.update(tmp.__dict__)
 
 
+
+    def is_kernel():
+        if 'IPython' not in sys.modules:
+            # IPython hasn't been imported, definitely not
+            return False
+        from IPython import get_ipython
+        # check for `kernel` attribute on the IPython instance
+        return getattr(get_ipython(), 'kernel', None) is not None
+
     def show_table(self,filename=None,head=None):
         if hasattr(self,"table"):
             if head==None:
-                print(self.table)
+                if not is_kernel():
+                    print(self.table)
+                else:
+                    self.table
             else:
-                print(self.table.head(head))
+                if not is_kernel():
+                    print(self.table.head(head))
+                else:
+                    self.table.head(head)
         else:
             if filename is None:
                 raise Exception('[Fail] ezdata.show_table() : Please provide a filename !')
             else:
                 d = pd.read_csv(filename)
                 if head==None:
-                    print(d)
+                    if not is_kernel():
+                        print(d)
+                    else:
+                        d
                 else:
-                    print(d.head(head))
+                    if not is_kernel():
+                        print(d.head(head))
+                    else:
+                        d.head(head)
