@@ -103,8 +103,8 @@ class ezmodel:
     def load(self,filename):
 
         if not os.path.isfile(filename+".zip"):
-            print("[Fail] ezmodel(load) : ", filename,".zip has not been found !")
-            sys.exit()
+            raise Exception("[Fail] ezmodel(load) : ", filename,".zip has not been found !")
+
 
 
         zip_ref = ZipFile(filename+".zip", 'r')
