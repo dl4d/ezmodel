@@ -21,7 +21,7 @@ class ezdata:
         if parameters is None:
             if load is None:
                 #print("[Fail] ezdata() : Please provide a parameter list to instantiate ezdata object !")
-                raise Error("[Fail] ezdata() : Please provide a parameter list to instantiate ezdata object !")
+                raise Exception("[Fail] ezdata() : Please provide a parameter list to instantiate ezdata object !")
             else:
                 self.load(load)
                 return
