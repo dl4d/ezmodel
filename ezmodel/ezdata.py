@@ -21,7 +21,9 @@ class ezdata:
         if parameters is None:
             if load is None:
                 #print("[Fail] ezdata() : Please provide a parameter list to instantiate ezdata object !")
-                raise Exception("[Fail] ezdata() : Please provide a parameter list to instantiate ezdata object !")
+                #raise Exception("[Fail] ezdata() : Please provide a parameter list to instantiate ezdata object !")
+                pass
+                return
             else:
                 self.load(load)
                 return
@@ -43,8 +45,7 @@ class ezdata:
         table_path = []
 
         if not os.path.isfile(parameters["path"]):
-            print("[Fail] ezdata.import_classification_table(): Path file in parameters doesn't exist !")
-            sys.exit()
+            raise Exception("[Fail] ezdata.import_classification_table(): Path file in parameters doesn't exist !")
 
         print ('[X] Loading :', parameters["path"])
 
@@ -54,8 +55,7 @@ class ezdata:
             Y = table[parameters["table_target_column"]]
             table = table.drop(columns=parameters["table_target_column"])
         else:
-            print("[Fail] ezdata.import_classification_table(): You didn't provide any Target columns into parameters. \n Please assign: 'table_target_colum' into parameters list")
-            sys.exit()
+            raise Exception("[Fail] ezdata.import_classification_table(): You didn't provide any Target columns into parameters. \n Please assign: 'table_target_colum' into parameters list")
 
         if "table_drop_column" in parameters:
             table = table.drop(columns=parameters["table_drop_column"])
@@ -89,8 +89,8 @@ class ezdata:
         synsets=[]
 
         if not os.path.isdir(parameters["path"]):
-            print("[Fail] ezdata.import_classification_images() : Path in parameters is not a directory !")
-            sys.exit()
+            raise Exception("[Fail] ezdata.import_classification_images() : Path in parameters is not a directory !")
+
 
         print ('[X] Loading :', parameters["path"])
 
@@ -138,8 +138,8 @@ class ezdata:
         imgarray = np.asarray(imgarray)
 
         if len(imgarray.shape)==1:
-            print ("[Fail] images_to_keras() : Image size heterogeneity !  Size of images into the dataset are not the same. You should try to use 'resize' parameters to make them homogenous.")
-            sys.exit()
+            raise Exception("[Fail] images_to_keras() : Image size heterogeneity !  Size of images into the dataset are not the same. You should try to use 'resize' parameters to make them homogenous.")
+
 
         if len(imgarray.shape)==3:
             imgarray = np.expand_dims(imgarray,axis=3)
@@ -172,12 +172,12 @@ class ezdata:
     def preprocess(self,X=None,y=None):
 
         if X.lower() not in ["minmax","standard"]:
-            print('[Fail] preprocess() : Only "minmax","standard" are accepted as preprocessing for X')
-            sys.exit()
+            raise Exception('[Fail] preprocess() : Only "minmax","standard" are accepted as preprocessing for X')
+
 
         if y.lower() not in ["minmax","standard","categorical"]:
-            print('[Fail] preprocess() : Only "minmax","standard","categorical" are accepted as preprocessing for Y')
-            sys.exit()
+            raise Exception('[Fail] preprocess() : Only "minmax","standard","categorical" are accepted as preprocessing for Y')
+
 
         #X
         if X.lower() == "minmax":
@@ -282,3 +282,20 @@ class ezdata:
         tmp = pickle.load(filehandler)
         filehandler.close()
         self.__dict__.update(tmp.__dict__)
+
+
+    def show_table(self,filename=None,head=None):
+        if hasattr(self,"table"):
+            if head==None:
+                print(self.table)
+            else:
+                print(self.table.head(head))
+        else:
+            if filename is None:
+                raise Exception('[Fail] ezdata.show_table() : Please provide a filename !')
+            else:
+                d = pd.read_csv(filename)
+                if head==None:
+                    print(d)
+                else:
+                    print(d.head(head))
