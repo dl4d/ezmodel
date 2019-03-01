@@ -3,14 +3,16 @@ from zipfile import ZipFile
 import os
 import time
 from keras.models import load_model
+import sys
 
 class ezmodel:
 
     def __init__(self, load = None, type = None):
 
-        self.data    = None
-        self.trainer = None
-        self.type    = None
+        self.data               = None
+        self.trainer            = None
+        self.type               = None
+        self.model_parameters   = None
 
         if type is not None:
             self.type = type
@@ -41,6 +43,7 @@ class ezmodel:
                 callbacks = parameters["callbacks"]
             if "verbose" in parameters:
                 verbose = parameters["verbose"]
+            self.model_parameters = parameters
 
         history = self.trainer.network.fit(
                         self.trainer.X_train,
@@ -82,25 +85,26 @@ class ezmodel:
             print("[Notice] No EZ trainer to save has been found")
 
 
+
         filehandler = open(filename+".pkl","wb")
         pickle.dump(self,filehandler)
         filehandler.close()
-        print("--- EZ data has been saved in     :",filename,".pkl")
         print("\n")
 
         with ZipFile(filename+'.zip', 'w') as myzip:
             myzip.write(filename+".h5")
             myzip.write(filename+".pkl")
+        print("--- EZ model has been saved in :", filename,".zip")
 
-        #time.sleep(5)
         os.remove(filename+".h5")
         os.remove(filename+".pkl")
+
 
     def load(self,filename):
 
         if not os.path.isfile(filename+".zip"):
             print("[Fail] ezmodel(load) : ", filename,".zip has not been found !")
-            return
+            sys.exit()
 
 
         zip_ref = ZipFile(filename+".zip", 'r')
@@ -114,6 +118,7 @@ class ezmodel:
         self.data = tmp.data
         self.trainer = tmp.trainer
         self.type = tmp.type
+        self.model_parameters = tmp.model_parameters
 
 
         self.trainer.network = load_model(filename+".h5")

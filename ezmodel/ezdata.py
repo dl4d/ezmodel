@@ -1,28 +1,84 @@
 import os
 from PIL import Image
 import numpy as np
+import sys
+import pandas as pd
+import pickle
 
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, LabelEncoder
+
 
 from keras.utils import to_categorical
 
 
 
 class ezdata:
-    def __init__(self,parameters=None):
+    def __init__(self,parameters=None,load=None):
 
         self.params      = None
 
         if parameters is None:
-            print("[Fail] ezdata() : Please provide a parameter list to instantiate ezdata object !")
-            return
+            if load is None:
+                print("[Fail] ezdata() : Please provide a parameter list to instantiate ezdata object !")
+                sys.exit()
+            else:
+                self.load(load)
+                return
         else:
             self.params = parameters
 
-        if (self.params["type"].lower() == "classification") and ( (self.params["format"].lower()=="images") or (self.params["format"].lower()=="image")):
-
+        if (self.params["type"].lower() == "classification") and (self.params["format"].lower()=="images"):
             self.import_classification_images(parameters)
+            return
+
+        if (self.params["type"].lower() == "classification") and (self.params["format"].lower()=="table"):
+            self.import_classification_table(parameters)
+            return
+
+    #CLASSIFICATION - TABLES
+    def import_classification_table(self,parameters):
+
+        table =[]
+        table_path = []
+
+        if not os.path.isfile(parameters["path"]):
+            print("[Fail] ezdata.import_classification_table(): Path file in parameters doesn't exist !")
+            sys.exit()
+
+        print ('[X] Loading :', parameters["path"])
+
+        table = pd.read_csv(parameters["path"])
+
+        if "table_target_column" in parameters:
+            Y = table[parameters["table_target_column"]]
+            table = table.drop(columns=parameters["table_target_column"])
+        else:
+            print("[Fail] ezdata.import_classification_table(): You didn't provide any Target columns into parameters. \n Please assign: 'table_target_colum' into parameters list")
+            sys.exit()
+
+        if "table_drop_column" in parameters:
+            table = table.drop(columns=parameters["table_drop_column"])
+
+        X = table.values
+
+        self.table      = table
+        self.table_path = parameters["path"]
+        self.X = X
+
+        if "table_target_column_type" in parameters:
+            if parameters["table_target_column_type"]=="string":
+                encoder = LabelEncoder()
+                Y = encoder.fit_transform(np.squeeze(Y))
+                self.synsets = encoder.classes_
+
+        self.y = Y
+
+        print ("[X] Table conversion to Keras format: Done")
+        print ("--- 'X' and 'y' tensors have been created into current ezdata object.")
+        print("\n")
+
+
 
     # CLASSIFICATION - IMAGES
     def import_classification_images(self,parameters):
@@ -31,6 +87,10 @@ class ezdata:
         labels =[]
         image_paths=[]
         synsets=[]
+
+        if not os.path.isdir(parameters["path"]):
+            print("[Fail] ezdata.import_classification_images() : Path in parameters is not a directory !")
+            sys.exit()
 
         print ('[X] Loading :', parameters["path"])
 
@@ -60,10 +120,10 @@ class ezdata:
         if "resize" in self.params:
             self.to_keras(self.params["resize"])
         else:
-            self.to_keras()
+            self.images_to_keras()
 
 
-    def to_keras(self,resize=None):
+    def images_to_keras(self,resize=None):
 
         im=[]
         for image in self.images:
@@ -78,8 +138,9 @@ class ezdata:
         imgarray = np.asarray(imgarray)
 
         if len(imgarray.shape)==1:
-            print ("[Fail] to_keras() : Image size heterogeneity !  Size of images into the dataset are not the same. You should try to use 'resize' parameters to make them homogenous.")
-            return
+            print ("[Fail] images_to_keras() : Image size heterogeneity !  Size of images into the dataset are not the same. You should try to use 'resize' parameters to make them homogenous.")
+            sys.exit()
+
         if len(imgarray.shape)==3:
             imgarray = np.expand_dims(imgarray,axis=3)
 
@@ -87,7 +148,7 @@ class ezdata:
         self.X = imgarray.astype('float32')
         self.y = np.asarray(self.labels)
 
-        print ("[X] Conversion to Keras format: Done")
+        print ("[X] Images conversion to Keras format: Done")
         print ("--- 'X' and 'y' tensors have been created into current ezdata object.")
         print("\n")
 
@@ -112,9 +173,11 @@ class ezdata:
 
         if X.lower() not in ["minmax","standard"]:
             print('[Fail] preprocess() : Only "minmax","standard" are accepted as preprocessing for X')
+            sys.exit()
 
         if y.lower() not in ["minmax","standard","categorical"]:
             print('[Fail] preprocess() : Only "minmax","standard","categorical" are accepted as preprocessing for Y')
+            sys.exit()
 
         #X
         if X.lower() == "minmax":
@@ -146,30 +209,48 @@ class ezdata:
 
     def minmax_scaling(self,data):
         scalers=[]
-        for i in range(data.shape[3]):
+
+        if len(data.shape)==4:
+            for i in range(data.shape[3]):
+                scaler = MinMaxScaler()
+                shape_before = data[:,:,:,i].shape
+                a = data[:,:,:,i].reshape(-1,1)
+                scalers.append(scaler.fit(a))
+                b = scalers[i].transform(a)
+                data[:,:,:,i] = b.reshape(shape_before)
+                return data,scalers
+
+        if len(data.shape)==2:
             scaler = MinMaxScaler()
-            shape_before = data[:,:,:,i].shape
-            a = data[:,:,:,i].reshape(-1,1)
+            a = data
             scalers.append(scaler.fit(a))
-            b = scalers[i].transform(a)
-            data[:,:,:,i] = b.reshape(shape_before)
-        #print ("[X] Preprocessing : MinMax")
-        #print("\n")
-        return data,scalers
+            b = scaler.transform(a)
+            data=b
+            return data,[scaler]
+
 
     def standard_scaling(self,data):
 
         scalers=[]
-        for i in range(data.shape[3]):
+
+        if len(data.shape)==4:
+            for i in range(data.shape[3]):
+                scaler = StandardScaler()
+                shape_before = data[:,:,:,i].shape
+                a = data[:,:,:,i].reshape(-1,1)
+                scalers.append(scaler.fit(a))
+                b = scalers[i].transform(a)
+                data[:,:,:,i] = b.reshape(shape_before)
+            return data,scalers
+
+        if len(data.shape)==2:
             scaler = StandardScaler()
-            shape_before = data[:,:,:,i].shape
-            a = data[:,:,:,i].reshape(-1,1)
+            a = data
             scalers.append(scaler.fit(a))
-            b = scalers[i].transform(a)
-            data[:,:,:,i] = b.reshape(shape_before)
-        #print ("[X] Preprocessing : Standard")
-        #print("\n")
-        return data,scalers
+            b = scaler.transform(a)
+            data=b
+            return data,[scaler]
+
 
     def categorical_transform(self,data):
         #print ("[X] Preprocessing : Categorical")
@@ -178,10 +259,26 @@ class ezdata:
 
     def scaler_scaling(self,data,scaler):
         for i in range(len(scaler)):
-            shape_before = data[:,:,:,i].shape
-            a = data[:,:,:,i].reshape(-1,1)
-            b = scaler[i].transform(a)
-            data[:,:,:,i] = b.reshape(shape_before)
-        #print ("[X] Preprocessing using scalers.")
-        #print("\n")
+            if len(data.shape)==4:
+                shape_before = data[:,:,:,i].shape
+                a = data[:,:,:,i].reshape(-1,1)
+                b = scaler[i].transform(a)
+                data[:,:,:,i] = b.reshape(shape_before)
+            if len(data.shape)==2:
+                a = data
+                b = scaler[i].transform(a)
+                data = b
         return data,scaler
+
+    def save(self,filename):
+        filehandler = open(filename.strip()+".pkl","wb")
+        pickle.dump(self,filehandler)
+        filehandler.close()
+        print("--- EZ data has been saved in     :",filename,".pkl")
+        print("\n")
+
+    def load(self,filename):
+        filehandler = open(filename+".pkl", 'rb')
+        tmp = pickle.load(filehandler)
+        filehandler.close()
+        self.__dict__.update(tmp.__dict__)

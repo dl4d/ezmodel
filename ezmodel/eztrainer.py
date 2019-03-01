@@ -50,3 +50,4 @@ class eztrainer:
                 self.network.compile(**optimizer)
             else:
                 print("[Fail] compile() : No network to compile the optimizer with. Please use gen_network() on your Keras network before.")
+                sys.exit()
