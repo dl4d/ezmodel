@@ -21,7 +21,8 @@ class ezdata:
         if parameters is None:
             if load is None:
                 print("[Fail] ezdata() : Please provide a parameter list to instantiate ezdata object !")
-                sys.exit()
+                #sys.exit()
+                exit()
             else:
                 self.load(load)
                 return
