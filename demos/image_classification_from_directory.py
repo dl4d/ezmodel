@@ -13,10 +13,8 @@ print(ez_model.type)
 # - One subdirectory by Class
 parameters = {
     "name"        : "Bacteria",
-    "type"        : "classification",
-    "format"      : "images",
-    "from"        : "directory",
     "path"        : "C:\\Users\\daian\\Desktop\\DATA\\bacteria\\",
+    "resize"      : (32,32)
 }
 
 ez_data = ezdata(parameters)

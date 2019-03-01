@@ -13,14 +13,8 @@ print(ez_model.type)
 # - One subdirectory by Class
 parameters = {
     "name"                      : "Bacteria CSV",
-    "type"                      : "classification",
-    "format"                    : "table",
-    "from"                      : "file",
     "path"                      : "C:\\Users\\daian\\Desktop\\DATA\\bacteria_csv\\bacteria.csv",
-    "table_delimiter"           : "\t",
-    "table_target_column"       : ["Label"],
-    "table_target_column_type"  : "number",
-    "table_drop_column"         : ["Id"]
+    "table.target.column"       : "Label",
 }
 
 ez_data = ezdata(parameters)

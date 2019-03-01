@@ -8,8 +8,12 @@ from ezmodel.eztrainer import eztrainer
 
 
 
-ez_data = ezdata()
+ezdata().show_table(filename="C:\\Users\\daian\\Desktop\\DATA\\Iris\\iris.csv")
 
-print(ez_data.is_kernel())
+parameters={
+    "name" : "Iris",
+    "path" : "C:\\Users\\daian\\Desktop\\DATA\\Iris\\iris.csv",
+    "table.target.column" : "species"
+}
 
-ez_data.show_table(filename="C:\\Users\\daian\\Desktop\\DATA\\Iris\\iris.csv")
+ez_data = ezdata(parameters)

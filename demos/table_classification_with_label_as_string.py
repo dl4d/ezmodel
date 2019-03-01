@@ -13,13 +13,10 @@ print(ez_model.type)
 # - One subdirectory by Class
 parameters = {
     "name"                      : "Iris",
-    "type"                      : "classification",
-    "format"                    : "table",
-    "from"                      : "file",
     "path"                      : "C:\\Users\\daian\\Desktop\\DATA\\Iris\\iris.csv",
-    "table_delimiter"           : ",",
-    "table_target_column"       : ["species"],
-    "table_target_column_type"  : "string"
+    "table.delimiter"           : ",",
+    "table.target.column"       : "species",
+    "table.target.type"         : "string"
 }
 
 ez_data = ezdata(parameters)

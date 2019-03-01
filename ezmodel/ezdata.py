@@ -30,16 +30,54 @@ class ezdata:
         else:
             self.params = parameters
 
-        if (self.params["type"].lower() == "classification") and (self.params["format"].lower()=="images"):
-            self.import_classification_images(parameters)
-            return
+        if "name" not in self.params:
+            self.params["name"] = "Noname"
 
-        if (self.params["type"].lower() == "classification") and (self.params["format"].lower()=="table"):
-            self.import_classification_table(parameters)
-            return
+        if "path" not in self.params:
+            raise Exception("[Fail] ezdata(): Please provide a path !")
+        else:
+            #Images classification from directory
+            if (os.path.isdir(self.params["path"])) and ("path_mask" not in self.params):
+                self.import_classification_images(parameters)
+                #self.type = "classification"
+                return
+            #Images segmentation from directory
+            if (os.path.isdir(self.params["path"])) and (os.path.isdir(self.params["path_mask"])):
+                self.import_segmentation_images(parameters)
+                #self.type = "segmentation"
+                return
+
+            #Table Classification or regression
+            if (os.path.isfile(self.params["path"])):
+                self.import_table(parameters)
+                return
+
+            #Image classification from directory and csv index file
+            if (os.path.isdir(self.params["path"])) and (os.path.isfile(self.params["path_index"])):
+                self.import_classification_images_from_indexes()
+                #self.type="classification"
+
+
+        # if (self.params["type"].lower() == "classification") and (self.params["format"].lower()=="images"):
+        #     self.import_classification_images(parameters)
+        #     return
+        #
+        # if (self.params["type"].lower() == "classification") and (self.params["format"].lower()=="table"):
+        #     self.import_classification_table(parameters)
+        #     return
+
+    def import_classification_images_from_index(self,parameters):
+        print('TODO: import_classification_images_from_index()')
+        return
+
+    def import_segmentation_images(self,parameters):
+        print('TODO: import_segmentation_images()')
+        return
+
+    #CLASSIFICATION IMAGES from CSVTABLE annuaire
 
     #CLASSIFICATION - TABLES
-    def import_classification_table(self,parameters):
+    def import_table(self,parameters):
 
         table =[]
         table_path = []
@@ -49,16 +87,29 @@ class ezdata:
 
         print ('[X] Loading :', parameters["path"])
 
-        table = pd.read_csv(parameters["path"])
-
-        if "table_target_column" in parameters:
-            Y = table[parameters["table_target_column"]]
-            table = table.drop(columns=parameters["table_target_column"])
+        #Delimiter
+        if "table.delimiter" in parameters:
+            table = pd.read_csv(parameters["path"],delimiter=parameters["table.delimiter"])
         else:
-            raise Exception("[Fail] ezdata.import_classification_table(): You didn't provide any Target columns into parameters. \n Please assign: 'table_target_colum' into parameters list")
+            found = False
+            for delim in [",",";"," ","\t"]:
+                table = pd.read_csv(parameters["path"],delimiter=delim)
+                if table.columns.shape[0] != 1:
+                    print("[Notice] Found a delimiter !")
+                    found = True
+                    break
+            if not found:
+                raise Exception("[Fail] ezdata.import_table() : No delimiter suitable for your table have been automatically found. Please provide one using 'table.delim' parameter.")
 
-        if "table_drop_column" in parameters:
-            table = table.drop(columns=parameters["table_drop_column"])
+        if "table.target.column" in parameters:
+
+            Y = table[parameters["table.target.column"]]
+            table = table.drop(columns=parameters["table.target.column"])
+        else:
+            raise Exception("[Fail] ezdata.import_classification_table(): You didn't provide any Target columns into parameters. \n Please assign: 'table.target.column' into parameters list")
+
+        if "table.drop.column" in parameters:
+            table = table.drop(columns=parameters["table.drop.column"])
 
         X = table.values
 
@@ -66,16 +117,33 @@ class ezdata:
         self.table_path = parameters["path"]
         self.X = X
 
-        if "table_target_column_type" in parameters:
-            if parameters["table_target_column_type"]=="string":
+        #Check the dtype of Y (to know whether it's number or string)
+        print ("[X] Table conversion to Keras format: Done")
+        print ("--- 'X' and 'y' tensors have been created into current ezdata object.")
+
+        if "table.target.type" in parameters:
+            if parameters["table.target.type"]=="string":
                 encoder = LabelEncoder()
                 Y = encoder.fit_transform(np.squeeze(Y))
                 self.synsets = encoder.classes_
+                print("--- 'synsets' has been create into current ezdata object.")
+        else:
+            if Y.dtype == "object":
+                encoder = LabelEncoder()
+                Y = encoder.fit_transform(np.squeeze(Y))
+                self.synsets = encoder.classes_
+                print("--- 'synsets' has been create into current ezdata object.")
+
+        # if "table.target.type" in parameters:
+        #     if parameters["table.target.type"]=="string":
+        #         encoder = LabelEncoder()
+        #         Y = encoder.fit_transform(np.squeeze(Y))
+        #         self.synsets = encoder.classes_
 
         self.y = Y
 
-        print ("[X] Table conversion to Keras format: Done")
-        print ("--- 'X' and 'y' tensors have been created into current ezdata object.")
+
+
         print("\n")
 
 
@@ -118,9 +186,11 @@ class ezdata:
         print("\n")
 
         if "resize" in self.params:
-            self.to_keras(self.params["resize"])
+          self.images_to_keras(self.params["resize"])
         else:
-            self.images_to_keras()
+          self.images_to_keras()
+
+
 
 
     def images_to_keras(self,resize=None):
