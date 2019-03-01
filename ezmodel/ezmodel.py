@@ -78,7 +78,7 @@ class ezmodel:
                 network = self.trainer.network
                 self.trainer.network=None
                 network.save(filename+".h5")
-                print("--- EZ trainer has been saved in :", filename,".h5")
+                #print("--- EZ trainer has been saved in :", filename,".h5")
             else:
                 print("[Notice] No EZ trainer network to save has been found")
         else:
