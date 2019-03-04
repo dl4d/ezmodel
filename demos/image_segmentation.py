@@ -13,7 +13,7 @@ from ezmodel.eztrainer import eztrainer, ezoptimizer
 # - One subdirectory by Class
 
 parameters={
-    "name"      : "Iris",
+    "name"      : "Blob",
     "path"      : "C:\\Users\\daian\\Desktop\\DATA\\Blob\\images\\",
     "path_mask" : "C:\\Users\\daian\\Desktop\\DATA\\Blob\\masks\\",
     "resize"    : (64,64)
@@ -33,7 +33,7 @@ ez_trainer.gen_trainval(ez_data,size=0.2)
 import keras
 
 #Make the segmentation network automatically using unet
-ez_trainer.Network(name="unet")
+ez_trainer.Network(name="Unet")
 
 
 # -- Keras optimizer --

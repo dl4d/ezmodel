@@ -15,8 +15,7 @@ parameters = {
     "name"                      : "Iris",
     "path"                      : "C:\\Users\\daian\\Desktop\\DATA\\Iris\\iris.csv",
     "table.delimiter"           : ",",
-    "table.target.column"       : "species",
-    "table.target.type"         : "string"
+    "table.target.column"       : "species"
 }
 
 ez_data = ezdata(parameters)

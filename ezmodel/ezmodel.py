@@ -4,6 +4,7 @@ import os
 import time
 from keras.models import load_model
 import sys
+import pandas as pd
 
 class ezmodel:
 
@@ -68,6 +69,28 @@ class ezmodel:
         print("\n")
 
         return p
+
+    def is_kernel(self):
+        if 'IPython' not in sys.modules:
+            # IPython hasn't been imported, definitely not
+            return False
+        from IPython import get_ipython
+        # check for `kernel` attribute on the IPython instance
+        return getattr(get_ipython(), 'kernel', None) is not None
+
+
+    def confusion_matrix(self):
+        from IPython.display import display
+        print("[X] Confusion Matrix on Test set: ")
+        p = self.trainer.network.predict(self.trainer.X_valid)
+        m =  pd.crosstab(
+                pd.Series(self.trainer.y_valid.argmax(axis=1), name='Validation'),
+                pd.Series(p.argmax(axis=1), name='Prediction')
+                )
+        if not self.is_kernel():
+            print(m)
+        else:
+            display(m)
 
 
     def save(self,filename):

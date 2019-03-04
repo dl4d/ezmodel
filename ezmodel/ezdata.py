@@ -174,13 +174,13 @@ class ezdata:
                 encoder = LabelEncoder()
                 Y = encoder.fit_transform(np.squeeze(Y))
                 self.synsets = encoder.classes_
-                print("--- 'synsets' has been create into current ezdata object.")
+                print("--- 'synsets' have been create into current ezdata object.")
         else:
             if Y.dtype == "object":
                 encoder = LabelEncoder()
                 Y = encoder.fit_transform(np.squeeze(Y))
                 self.synsets = encoder.classes_
-                print("--- 'synsets' has been create into current ezdata object.")
+                print("--- 'synsets' have been create into current ezdata object.")
 
         # if "table.target.type" in parameters:
         #     if parameters["table.target.type"]=="string":
@@ -455,6 +455,8 @@ class ezdata:
         from IPython import get_ipython
         # check for `kernel` attribute on the IPython instance
         return getattr(get_ipython(), 'kernel', None) is not None
+
+
 
     def show_table(self,filename=None,head=None):
         from IPython.display import display
