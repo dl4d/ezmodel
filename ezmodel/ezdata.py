@@ -371,9 +371,11 @@ class ezdata:
             self.X = keras.applications.mobilenet.preprocess_input(self.X)
             self.scalerX = "mobilenet"
 
-
         if hasattr(self,"X_test"):
             self.X_test = self.X_test.astype("float32")
+            if self.scalerX == "mobilenet":
+                self.X_test = keras.application.mobilenet.preprocess_input(self.X_test)
+                return
             self.X_test,_= self.scaler_scaling(self.X_test,self.scalerX)
 
         #Y
