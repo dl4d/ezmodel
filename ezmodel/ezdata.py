@@ -357,23 +357,30 @@ class ezdata:
 
         #X
         if X.lower() == "minmax":
+            self.X = self.X.astype("float32")
             self.X,self.scalerX = self.minmax_scaling(self.X)
 
         if X.lower() == "standard":
+            self.X = self.X.astype("float32")
             self.X,self.scalerX = self.standard_scaling(self.X)
 
         if hasattr(self,"X_test"):
+            self.X_test = self.X_test.astype("float32")
             self.X_test,_= self.scaler_scaling(self.X_test,self.scalerX)
 
         #Y
         if y.lower() == "minmax":
+            self.y = self.y.astype("float32")
             self.y,self.scalerY = self.minmax_scaling(self.y)
             if hasattr(self,"y_test"):
+                self.y_test = self.y_test.astype("float32")
                 self.y_test,_= self.scaler_scaling(self.y_test,self.scalerY)
 
         if y.lower() == "standard":
+            self.y = self.y.astype("float32")
             self.y,self.scalerY = self.standard_scaling(self.y)
             if hasattr(self,"y_test"):
+                self.y_test = self.y_test.astype("float32")
                 self.y_test,_= self.scaler_scaling(self.y_test,self.scalerY)
 
         if y.lower() == "categorical":
@@ -392,8 +399,6 @@ class ezdata:
 
     def minmax_scaling(self,data):
         scalers=[]
-
-        self.X = self.X.astype("float32")
 
         if len(data.shape)==4:
             for i in range(data.shape[3]):
@@ -417,8 +422,6 @@ class ezdata:
     def standard_scaling(self,data):
 
         scalers=[]
-
-        self.X = self.X.astype("float32")
 
         if len(data.shape)==4:
             for i in range(data.shape[3]):
@@ -447,7 +450,7 @@ class ezdata:
     def scaler_scaling(self,data,scaler):
 
         self.X = self.X.astype("float32")
-        
+
         for i in range(len(scaler)):
             if len(data.shape)==4:
                 shape_before = data[:,:,:,i].shape
