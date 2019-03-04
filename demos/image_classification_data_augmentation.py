@@ -66,8 +66,8 @@ parameters = {
 ez_model.train(parameters)
 
 # # --------------------------  [EZ Evaluation] ---------------------------------
-# ez_model.evaluate()
-ez_model.learning_graph()
+ez_model.evaluate()
+#ez_model.learning_graph()
 
 #
 # # --------------------------     [EZ Save]    ---------------------------------

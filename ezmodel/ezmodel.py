@@ -88,8 +88,13 @@ class ezmodel:
 
     def evaluate(self):
 
-        print ("[X] Evaluation on Test set: ")
-        p = self.trainer.network.evaluate(self.data.X_test,self.data.y_test,verbose=0)
+        if not hasattr(self,"X_test"):
+            print("[Notice] No Test set has been created, evaluation will be done on Validation set !")
+            print("[X] Evaluation on Validation set:")
+            p = self.trainer.network.evaluate(self.trainer.X_valid,self.trainer.y_valid,verbose=0)
+        else:
+            print ("[X] Evaluation on Test set: ")
+            p = self.trainer.network.evaluate(self.data.X_test,self.data.y_test,verbose=0)
 
         print ("--- Loss    : ", p[0])
         print ("--- Metrics : ", p[1])

@@ -50,9 +50,17 @@ class ezdata:
                 #self.type = "segmentation"
                 return
 
-            #Table Classification or regression
+
             if (os.path.isfile(self.params["path"])):
-                self.import_table(parameters)
+                extension = os.path.splitext(self.params["path"])[1]
+                if extension == ".csv":
+                    #Table Classification or regression
+                    self.import_table(parameters)
+                    return
+                if extension == ".npz":
+                    self.from_npz(self.params)
+                    return
+                raise Exception('File extension/type not recognized ! Should be "csv" or "npz" !')
                 return
 
             #Image classification from directory and csv index file
@@ -234,6 +242,7 @@ class ezdata:
         self.labels = labels
         self.image_paths = image_paths
         self.synsets = synsets
+        print('--- Synsets have been generated')
         print("\n")
 
         if "resize" in self.params:
@@ -353,20 +362,24 @@ class ezdata:
         if X.lower() == "standard":
             self.X,self.scalerX = self.standard_scaling(self.X)
 
-        self.X_test,_= self.scaler_scaling(self.X_test,self.scalerX)
+        if hasattr(self,"X_test"):
+            self.X_test,_= self.scaler_scaling(self.X_test,self.scalerX)
 
         #Y
         if y.lower() == "minmax":
             self.y,self.scalerY = self.minmax_scaling(self.y)
-            self.y_test,_= self.scaler_scaling(self.y_test,self.scalerY)
+            if hasattr(self,"y_test"):
+                self.y_test,_= self.scaler_scaling(self.y_test,self.scalerY)
 
         if y.lower() == "standard":
             self.y,self.scalerY = self.standard_scaling(self.y)
-            self.y_test,_= self.scaler_scaling(self.y_test,self.scalerY)
+            if hasattr(self,"y_test"):
+                self.y_test,_= self.scaler_scaling(self.y_test,self.scalerY)
 
         if y.lower() == "categorical":
             self.y,self.scalerY = self.categorical_transform(self.y)
-            self.y_test,_       = self.categorical_transform(self.y_test)
+            if hasattr(self,"y_test"):
+                self.y_test,_       = self.categorical_transform(self.y_test)
 
         if y.lower() == "none":
             self.scalerY = "none"
@@ -529,3 +542,34 @@ class ezdata:
                         print(d.head(head))
                     else:
                         display(d.head(head))
+
+
+    def to_npz(self,filename):
+        if hasattr(self,"synsets"):
+            np.savez(filename+".npz",X=self.X,y=self.y,synsets=self.synsets)
+        else:
+            np.savez(filename+".npz",X=self.X,y=self.y)
+
+    def from_npz(self,parameters):
+
+        data = np.load(parameters["path"])
+        if "X.key" in parameters:
+            self.X = data[parameters["X.key"]]
+        else:
+            self.X = data["X"]
+
+        if "y.key" in parameters:
+            self.y = data[parameters["y.key"]]
+        else:
+            self.y = data["y"]
+        if "synsets.key" in parameters:
+            self.synsets = data[parameters["synsets.key"]]
+        else:
+            if "synsets" in data:
+                self.synsets = data["synsets"]
+
+        if "name" in parameters:
+            self.name = parameters["name"]
+        else:
+            self.name = "NoName"
+        print("[X] Loading from NPZ !")
