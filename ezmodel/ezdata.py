@@ -353,9 +353,9 @@ class ezdata:
 
         if y is None:
             y="none"
+
         if y.lower() not in ["minmax","standard","categorical","none"]:
             raise Exception('[Fail] preprocess() : Only "minmax","standard","categorical" or "None" are accepted as preprocessing for Y')
-
 
         #X
         if X.lower() == "minmax":
@@ -375,8 +375,8 @@ class ezdata:
             self.X_test = self.X_test.astype("float32")
             if self.scalerX == "mobilenet":
                 self.X_test = keras.applications.mobilenet.preprocess_input(self.X_test)
-                return
-            self.X_test,_= self.scaler_scaling(self.X_test,self.scalerX)
+            else:
+                self.X_test,_= self.scaler_scaling(self.X_test,self.scalerX)
 
         #Y
         if y.lower() == "minmax":

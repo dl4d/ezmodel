@@ -20,6 +20,8 @@ parameters = {
 
 ez_data = ezdata(parameters)
 
+ez_data.gen_test(0.2)
+
 ez_data.preprocess(X="mobilenet",y="categorical")
 
 
