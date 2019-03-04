@@ -5,6 +5,12 @@ from keras import layers
 import keras
 import keras.backend as K
 
+from keras.preprocessing.image import ImageDataGenerator
+
+import matplotlib.pyplot as plt
+import numpy as np
+import math
+
 
 class eztrainer:
 
@@ -16,6 +22,7 @@ class eztrainer:
         self.X_valid = None
         self.y_valid = None
         self.history = None
+        self.image_aug = None
 
     def gen_trainval(self,ezdata,size=0.2,random_state=42):
 
@@ -25,6 +32,41 @@ class eztrainer:
         print ("--- Training set : ", self.X_train.shape[0], "images")
         print ("--- Validation set     : ", self.X_valid.shape[0], "images")
         print("\n")
+
+    def keras_augmentation(self,parameters):
+        image_gen = ImageDataGenerator(**parameters)
+        if self.X_train is None:
+            raise Exception("[Fail] eztrainer.image_augmentation(): Training set has not been generated yet ! Please use 'gen_trainval() on eztrainer object before'")
+        image_gen.fit(self.X_train, augment=True)
+        self.image_aug = image_gen
+        print("[X] Keras ImageDataGenerator has been added to eztrainer object")
+        print("\n")
+
+
+
+    def show_images(self,n=16):
+
+        if not math.sqrt(n).is_integer():
+            raise Exception("[Fail] ezdata.show_images(): Please provide n as a perfect quare ! (2, 4, 9, 16, 25, 36, 49, 64 ...)")
+
+        augmented_images, _ = next( self.image_aug.flow( self.X_train, self.y_train, batch_size=n))
+
+        fig,axes = plt.subplots(nrows = int(math.sqrt(n)),ncols = int(math.sqrt(n)))
+        fig.tight_layout()
+        for i in range(n):
+            plt.subplot(math.sqrt(n),math.sqrt(n),i+1)
+
+            if (augmented_images[i].shape[2])==1:
+                plt.imshow(np.squeeze(augmented_images[i]),cmap="gray")
+            else:
+                plt.imshow(augmented_images[i])
+
+            plt.axis("off")
+
+        plt.show()
+
+
+
 
     def gen_network(self,inputs,outputs):
         m = Model(inputs=inputs,outputs=outputs)

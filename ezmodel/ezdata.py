@@ -4,6 +4,9 @@ import numpy as np
 import sys
 import pandas as pd
 import pickle
+import random
+import matplotlib.pyplot as plt
+import math
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, LabelEncoder
@@ -337,9 +340,10 @@ class ezdata:
         if X.lower() not in ["minmax","standard"]:
             raise Exception('[Fail] preprocess() : Only "minmax","standard" are accepted as preprocessing for X')
 
-
-        if y.lower() not in ["minmax","standard","categorical"]:
-            raise Exception('[Fail] preprocess() : Only "minmax","standard","categorical" are accepted as preprocessing for Y')
+        if y is None:
+            y="none"
+        if y.lower() not in ["minmax","standard","categorical","none"]:
+            raise Exception('[Fail] preprocess() : Only "minmax","standard","categorical" or "None" are accepted as preprocessing for Y')
 
 
         #X
@@ -363,6 +367,9 @@ class ezdata:
         if y.lower() == "categorical":
             self.y,self.scalerY = self.categorical_transform(self.y)
             self.y_test,_       = self.categorical_transform(self.y_test)
+
+        if y.lower() == "none":
+            self.scalerY = "none"
 
         print ("[X] Preprocessing using '",X,"' for X, and '",y,"' for Y.")
         print("\n")
@@ -455,6 +462,34 @@ class ezdata:
         from IPython import get_ipython
         # check for `kernel` attribute on the IPython instance
         return getattr(get_ipython(), 'kernel', None) is not None
+
+    def show_images(self,n=16):
+        #if not isinstance(int(math.sqrt(n)),int):
+        #    raise Exception("[Fail] ezdata.show_images(): Please provide n as power of 2 ! (2, 4, 8, 16 ...)")
+
+        if not math.sqrt(n).is_integer():
+            raise Exception("[Fail] ezdata.show_images(): Please provide n as a perfect quare ! (2, 4, 9, 16, 25, 36, 49, 64 ...)")
+        population = list(range(self.X.shape[0]))
+        r = random.sample(population,n)
+        fig,axes = plt.subplots(nrows = int(math.sqrt(n)),ncols = int(math.sqrt(n)))
+        fig.tight_layout()
+        for i in range(n):
+            plt.subplot(math.sqrt(n),math.sqrt(n),i+1)
+
+            if (self.X[r[i]].shape[2])==1:
+                plt.imshow(np.squeeze(self.X[r[i]]),cmap="gray")
+            else:
+                plt.imshow(self.X[r[i]])
+            #plt.title(self.y[r[i]])
+            if hasattr(self,"scalerY"):
+                if self.scalerY == "categorical":
+                    plt.title(self.synsets[np.argmax(self.y[r[i]])])
+                if self.scalerY == "none":
+                    plt.title(self.y[r[i]])
+
+            plt.axis("off")
+
+        plt.show()
 
 
 

@@ -37,6 +37,7 @@ class ezmodel:
         epochs = 10
         callbacks = None
         verbose = 1
+        batch_size = 32
 
         if parameters is not None:
             if "epochs" in parameters:
@@ -45,16 +46,34 @@ class ezmodel:
                 callbacks = parameters["callbacks"]
             if "verbose" in parameters:
                 verbose = parameters["verbose"]
+            if "batch_size" in parameters:
+                batch_size = parameters["batch_size"]
+
             self.model_parameters = parameters
 
-        history = self.trainer.network.fit(
-                        self.trainer.X_train,
-                        self.trainer.y_train,
-                        validation_data=(self.trainer.X_valid,self.trainer.y_valid),
-                        epochs=epochs,
-                        callbacks=callbacks,
-                        verbose = verbose
-                        )
+
+        if self.trainer.image_aug is None:
+            history = self.trainer.network.fit(
+                            self.trainer.X_train,
+                            self.trainer.y_train,
+                            validation_data=(self.trainer.X_valid,self.trainer.y_valid),
+                            epochs=epochs,
+                            batch_size = batch_size,
+                            callbacks=callbacks,
+                            verbose = verbose
+                            )
+
+        else:
+            print("[X] Training with Data augmentation on Training Set.")
+            history = self.trainer.network.fit_generator(
+                            self.trainer.image_aug.flow(self.trainer.X_train,self.trainer.y_train,batch_size = batch_size),
+                            validation_data = (self.trainer.X_valid,self.trainer.y_valid),
+                            steps_per_epoch = self.trainer.X_train.shape[0]//batch_size,
+                            epochs=epochs,
+                            verbose = verbose
+                            )
+
+
 
         #Save history
         if self.trainer.history is None:
