@@ -61,7 +61,7 @@ class ezmodel:
             self.trainer.history = history.history
         else:
             for key in history.history:
-                self.trainer.history[key] += self.trainer.history[key]
+                self.trainer.history[key] += history.history[key]
 
         print("\n")
 
