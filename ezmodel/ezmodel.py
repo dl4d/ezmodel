@@ -28,7 +28,7 @@ class ezmodel:
 
 
     def assign(self,data,trainer):
-            
+
         self.data = data
         self.trainer = trainer
 
@@ -230,3 +230,5 @@ class ezmodel:
         os.remove(filename+".pkl")
 
         print("[X]Ezmodel loaded successfully !")
+
+    def predict(self,X):

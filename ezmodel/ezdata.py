@@ -7,6 +7,10 @@ import pickle
 import random
 import matplotlib.pyplot as plt
 import math
+import requests
+from io import BytesIO
+from urllib.request import urlopen
+
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, LabelEncoder
@@ -609,3 +613,17 @@ class ezdata:
         else:
             self.name = "NoName"
         print("[X] Loading from NPZ !")
+
+    #Download one image from url
+    def image_from_url(self,url,img_size=(128,128)):
+
+        #Get image from url
+        response = requests.get(url)
+        img = Image.open(BytesIO(response.content))
+
+        #Resize the image
+        resize = img.resize(img_size, Image.NEAREST)
+        resize = np.asarray(resize)
+        resize = resize.astype('float32')
+        resize = np.expand_dims(resize,axis=0)
+        return resize

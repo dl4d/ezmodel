@@ -36,7 +36,7 @@ ez_trainer.gen_trainval(ez_data,size=0.2)
 #  -- Keras network --
 
 #mobilenet = ez_trainer.Transfer(name="mobilenet",frozen=True)
-mobilenet = ez_trainer.Transfer(name="vgg19",frozen=True)
+mobilenet = ez_trainer.EZTransfer(name="vgg19",frozen=True)
 
 inputs = ez_trainer.Input(transfer_model = mobilenet)
 x = Dense(1024)(inputs)

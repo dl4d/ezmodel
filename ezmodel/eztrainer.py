@@ -90,20 +90,24 @@ class eztrainer:
             global_model.add(bottom)
             self.network = global_model
 
-    def Transfer(self,name,frozen=True,include_top=False):
-
+    def PretrainedNetwork(self,name,shape,include_top=True):
         if name.lower()=="mobilenet":
-            transfer_network = MobileNet(include_top=include_top, weights='imagenet', input_shape=self.X_train.shape[1:])
-            self.transfer = "mobilenet"
+            transfer_network = MobileNet(include_top=include_top, weights='imagenet', input_shape=shape)
 
         if name.lower()=="vgg16":
-            transfer_network = VGG16(include_top=include_top, weights='imagenet', input_shape=self.X_train.shape[1:])
-            self.transfer = "vgg16"
+            transfer_network = VGG16(include_top=include_top, weights='imagenet', input_shape=shape)
 
         if name.lower()=="vgg19":
-            transfer_network = VGG19(include_top=include_top, weights='imagenet', input_shape=self.X_train.shape[1:])
-            self.transfer = "vgg19"
+            transfer_network = VGG19(include_top=include_top, weights='imagenet', input_shape=shape)
 
+        return transfer_network
+
+
+    def EZTransfer(self,name,frozen=True,include_top=False):
+
+        shape = self.X_train.shape[1:]
+
+        transfer_network = self.PretrainedNetwork(name,shape,include_top=include_top)
 
         if frozen:
             for layer in transfer_network.layers:
