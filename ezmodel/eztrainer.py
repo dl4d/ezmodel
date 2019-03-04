@@ -15,6 +15,7 @@ class eztrainer:
         self.y_train = None
         self.X_valid = None
         self.y_valid = None
+        self.history = None
 
     def gen_trainval(self,ezdata,size=0.2,random_state=42):
 

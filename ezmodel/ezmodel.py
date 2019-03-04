@@ -5,6 +5,7 @@ import time
 from keras.models import load_model
 import sys
 import pandas as pd
+import matplotlib.pyplot as plt
 
 class ezmodel:
 
@@ -55,6 +56,13 @@ class ezmodel:
                         verbose = verbose
                         )
 
+        #Save history
+        if self.trainer.history is None:
+            self.trainer.history = history.history
+        else:
+            for key in history.history:
+                self.trainer.history[key] += self.trainer.history[key]
+
         print("\n")
 
 
@@ -91,6 +99,49 @@ class ezmodel:
             print(m)
         else:
             display(m)
+
+    def learning_graph(self):
+
+        from IPython.display import display
+        #print (self.trainer.history.keys())
+        loss = []
+        val_loss = []
+        metric =[]
+        val_metric=[]
+
+        for key in self.trainer.history:
+            if "loss" in key:
+                if "val" in key:
+                    val_loss = self.trainer.history[key]
+                else:
+                    loss = self.trainer.history[key]
+            else:
+                if "val" in key:
+                    val_metric = self.trainer.history[key]
+                else:
+                    metric = self.trainer.history[key]
+
+        if not self.is_kernel():
+            print("[X] Loss Learning Graph:")
+            print("Training Loss   : ", loss)
+            print("Validation Loss : ", val_loss)
+            print("[X] Metric Learning Graph:")
+            print("Training Metrics   : ", metric)
+            print("Validation Metrics : ", val_metric)
+        else:
+            plt = figure(figsize=(10,10))
+            plt.title('Loss Learning Graph')
+            plt.plot(loss , c="red", label="Training")
+            plt.plot(val_loss, c="green", label="Validation")
+            plt.legend()
+            plt.show()
+            plt.title('Metric Learning Graph')
+            plt.plot(metric , c="red", label="Training")
+            plt.plot(val_metric, c="green", label="Validation")
+            plt.legend()
+            plt.show()
+
+
 
 
     def save(self,filename):

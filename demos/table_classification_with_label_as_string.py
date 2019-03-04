@@ -64,5 +64,7 @@ ez_model.train(parameters) #Check that we have both ez_data and ez_trainer set
 # --------------------------  [EZ Evaluation] ---------------------------------
 ez_model.evaluate()
 
+ez_model.confusion_matrix()
+
 # --------------------------     [EZ Save]    ---------------------------------
 ez_model.save("model0")

@@ -63,6 +63,9 @@ ez_model.evaluate()
 
 ez_model.confusion_matrix()
 
-
 # --------------------------     [EZ Save]    ---------------------------------
 #ez_model.save("model0")
+
+ez_model.train(parameters)
+
+ez_model.learning_graph()
