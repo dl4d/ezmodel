@@ -348,8 +348,8 @@ class ezdata:
     #def preprocess(data,type=None,scaler=None):
     def preprocess(self,X=None,y=None):
 
-        if X.lower() not in ["minmax","standard","mobilenet"]:
-            raise Exception('[Fail] preprocess() : Only "minmax","standard","mobilenet" are accepted as preprocessing for X')
+        if X.lower() not in ["minmax","standard","mobilenet","vgg16","vgg19"]:
+            raise Exception('[Fail] preprocess() : Only "minmax","standard","mobilenet","vgg16","vgg19" are accepted as preprocessing for X')
 
         if y is None:
             y="none"
@@ -371,10 +371,26 @@ class ezdata:
             self.X = keras.applications.mobilenet.preprocess_input(self.X)
             self.scalerX = "mobilenet"
 
+        if X.lower() == "vgg16":
+            self.X = self.X.astype("float32")
+            self.X = keras.applications.vgg16.preprocess_input(self.X)
+            self.scalerX = "vgg16"
+
+        if X.lower() == "vgg19":
+            self.X = self.X.astype("float32")
+            self.X = keras.applications.vgg19.preprocess_input(self.X)
+            self.scalerX = "vgg19"
+
+
         if hasattr(self,"X_test"):
             self.X_test = self.X_test.astype("float32")
             if self.scalerX == "mobilenet":
                 self.X_test = keras.applications.mobilenet.preprocess_input(self.X_test)
+            if self.scalerX == "vgg16":
+                self.X_test = keras.applications.vgg16.preprocess_input(self.X_test)
+            if self.scalerX == "vgg19":
+                self.X_test = keras.applications.vgg19.preprocess_input(self.X_test)
+
             else:
                 self.X_test,_= self.scaler_scaling(self.X_test,self.scalerX)
 

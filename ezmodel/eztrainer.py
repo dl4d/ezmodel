@@ -7,6 +7,16 @@ import keras.backend as K
 
 from keras.preprocessing.image import ImageDataGenerator
 
+from keras.applications.mobilenet import MobileNet
+from keras.applications.vgg16 import VGG16
+from keras.applications.vgg19 import VGG19
+from keras.applications.xception import Xception
+from keras.applications.densenet import DenseNet121,DenseNet169,DenseNet201
+from keras.applications.inception_resnet_v2 import InceptionResNetV2
+from keras.applications.inception_v3 import InceptionV3
+from keras.applications.nasnet import NASNetLarge,NASNetMobile
+from keras.applications.resnet50 import ResNet50
+
 import matplotlib.pyplot as plt
 import numpy as np
 import math
@@ -23,6 +33,7 @@ class eztrainer:
         self.y_valid = None
         self.history = None
         self.image_aug = None
+        self.transfer = None
 
     def gen_trainval(self,ezdata,size=0.2,random_state=42):
 
@@ -79,15 +90,38 @@ class eztrainer:
             global_model.add(bottom)
             self.network = global_model
 
+    def Transfer(self,name,frozen=True,include_top=False):
+
+        if name.lower()=="mobilenet":
+            transfer_network = MobileNet(include_top=include_top, weights='imagenet', input_shape=self.X_train.shape[1:])
+            self.transfer = "mobilenet"
+
+        if name.lower()=="vgg16":
+            transfer_network = VGG16(include_top=include_top, weights='imagenet', input_shape=self.X_train.shape[1:])
+            self.transfer = "vgg16"
+
+        if name.lower()=="vgg19":
+            transfer_network = VGG19(include_top=include_top, weights='imagenet', input_shape=self.X_train.shape[1:])
+            self.transfer = "vgg19"
+
+
+        if frozen:
+            for layer in transfer_network.layers:
+                    layer.trainable = False
+
+        model = Sequential()
+        model.add(transfer_network)
+        model.add(GlobalAveragePooling2D())
+
+        return model
+
+
     def Input(self,transfer_model=None):
         if transfer_model is None:
             return Input(shape=self.X_train.shape[1:])
         else:
-            model = Sequential()
-            model.add(transfer_model)
-            model.add(GlobalAveragePooling2D())
-            inputs = Input(shape = model.output_shape[1:])
-            return inputs,model
+            inputs = Input(shape = transfer_model.output_shape[1:])
+            return inputs
 
 
     def ClassificationOutput(self,x0):

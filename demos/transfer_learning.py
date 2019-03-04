@@ -22,16 +22,12 @@ ez_data = ezdata(parameters)
 
 ez_data.gen_test(0.2)
 
-ez_data.preprocess(X="mobilenet",y="categorical")
-
-
-from keras.applications.mobilenet import MobileNet
-mobilenet = MobileNet(include_top=False, weights='imagenet', input_shape=ez_data.X.shape[1:])
+#ez_data.preprocess(X="mobilenet",y="categorical")
+ez_data.preprocess(X="vgg19",y="categorical")
 
 
 # --------------------------  [EZ Trainer] ------------------------------------
-from keras.layers import Conv2D,Activation,MaxPooling2D,Flatten,Dense,GlobalAveragePooling2D,Dropout,Input
-from keras.models import Sequential, Model
+from keras.layers import Dense,Dropout
 
 ez_trainer = eztrainer()
 
@@ -39,12 +35,16 @@ ez_trainer.gen_trainval(ez_data,size=0.2)
 
 #  -- Keras network --
 
-inputs,transfer_model = ez_trainer.Input(transfer_model = mobilenet)
+#mobilenet = ez_trainer.Transfer(name="mobilenet",frozen=True)
+mobilenet = ez_trainer.Transfer(name="vgg19",frozen=True)
+
+inputs = ez_trainer.Input(transfer_model = mobilenet)
 x = Dense(1024)(inputs)
 x = Dropout(0.5) (x)
 x = Dense(1024)(x)
 outputs = ez_trainer.ClassificationOutput(x)
-ez_trainer.gen_network(inputs=inputs,outputs=outputs,transfer_model=transfer_model)
+
+ez_trainer.gen_network(inputs=inputs,outputs=outputs,transfer_model=mobilenet)
 
 ez_trainer.network.summary()
 
@@ -59,3 +59,8 @@ optimizer = {
 }
 
 ez_trainer.compile(optimizer=optimizer)
+
+
+# --------------------------  [EZ Assigment] ----------------------------------
+ez_model = ezmodel()
+ez_model.assign(ez_data,ez_trainer)

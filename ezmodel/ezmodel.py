@@ -28,6 +28,7 @@ class ezmodel:
 
 
     def assign(self,data,trainer):
+            
         self.data = data
         self.trainer = trainer
 
