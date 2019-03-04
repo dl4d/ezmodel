@@ -393,6 +393,8 @@ class ezdata:
     def minmax_scaling(self,data):
         scalers=[]
 
+        self.X = self.X.astype("float32")
+
         if len(data.shape)==4:
             for i in range(data.shape[3]):
                 scaler = MinMaxScaler()
@@ -415,6 +417,8 @@ class ezdata:
     def standard_scaling(self,data):
 
         scalers=[]
+
+        self.X = self.X.astype("float32")
 
         if len(data.shape)==4:
             for i in range(data.shape[3]):
@@ -441,6 +445,9 @@ class ezdata:
         return to_categorical(data),"categorical"
 
     def scaler_scaling(self,data,scaler):
+
+        self.X = self.X.astype("float32")
+        
         for i in range(len(scaler)):
             if len(data.shape)==4:
                 shape_before = data[:,:,:,i].shape
