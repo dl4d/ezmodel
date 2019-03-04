@@ -386,9 +386,9 @@ class ezdata:
             self.X_test = self.X_test.astype("float32")
             if self.scalerX == "mobilenet":
                 self.X_test = keras.applications.mobilenet.preprocess_input(self.X_test)
-            if self.scalerX == "vgg16":
+            elif self.scalerX == "vgg16":
                 self.X_test = keras.applications.vgg16.preprocess_input(self.X_test)
-            if self.scalerX == "vgg19":
+            elif self.scalerX == "vgg19":
                 self.X_test = keras.applications.vgg19.preprocess_input(self.X_test)
 
             else:
