@@ -1,5 +1,5 @@
 from sklearn.model_selection import train_test_split
-from keras.models import Input,Model
+from keras.models import Input,Model, Sequential
 from keras.layers import *
 from keras import layers
 import keras
@@ -68,12 +68,27 @@ class eztrainer:
 
 
 
-    def gen_network(self,inputs,outputs):
-        m = Model(inputs=inputs,outputs=outputs)
-        self.network = m
+    def gen_network(self,inputs,outputs,transfer_model=None):
+        if transfer_model is None:
+            m = Model(inputs=inputs,outputs=outputs)
+            self.network = m
+        else:
+            bottom = Model(inputs=inputs,outputs=outputs)
+            global_model = Sequential()
+            global_model.add(transfer_model)
+            global_model.add(bottom)
+            self.network = global_model
 
-    def Input(self):
-        return Input(shape=self.X_train.shape[1:])
+    def Input(self,transfer_model=None):
+        if transfer_model is None:
+            return Input(shape=self.X_train.shape[1:])
+        else:
+            model = Sequential()
+            model.add(transfer_model)
+            model.add(GlobalAveragePooling2D())
+            inputs = Input(shape = model.output_shape[1:])
+            return inputs,model
+
 
     def ClassificationOutput(self,x0):
 
@@ -98,7 +113,7 @@ class eztrainer:
             else:
                 raise Exception("[Fail] compile() : No network to compile the optimizer with. Please use gen_network() on your Keras network before.")
 
-    def Network(self,name=None,parameters=None):
+    def Network(self,name=None,parameters=None,transfer=False):
         if name is None:
             raise Exception("[Fail] eztrainer.Network(): Please enter a name for a prebuilt neural network")
 
@@ -107,6 +122,9 @@ class eztrainer:
 
         if name.lower() == "lenet5":
             self.network = self.Network_LENET5(parameters)
+
+        #if name.lower() == "mobilenet":
+
 
     def Network_LENET5(self,parameters):
 
@@ -178,6 +196,8 @@ class eztrainer:
 
         model = Model(inputs=[inputs], outputs=[conv10])
         return model
+
+
 
 #EZOptimizer ...
 class ezoptimizer:

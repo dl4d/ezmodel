@@ -14,6 +14,8 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, LabelEncoder
 
 from keras.utils import to_categorical
 
+import keras
+
 
 
 class ezdata:
@@ -346,8 +348,8 @@ class ezdata:
     #def preprocess(data,type=None,scaler=None):
     def preprocess(self,X=None,y=None):
 
-        if X.lower() not in ["minmax","standard"]:
-            raise Exception('[Fail] preprocess() : Only "minmax","standard" are accepted as preprocessing for X')
+        if X.lower() not in ["minmax","standard","mobilenet"]:
+            raise Exception('[Fail] preprocess() : Only "minmax","standard","mobilenet" are accepted as preprocessing for X')
 
         if y is None:
             y="none"
@@ -363,6 +365,12 @@ class ezdata:
         if X.lower() == "standard":
             self.X = self.X.astype("float32")
             self.X,self.scalerX = self.standard_scaling(self.X)
+
+        if X.lower() == "mobilenet":
+            self.X = self.X.astype("float32")
+            self.X = keras.applications.mobilenet.preprocess_input(self.X)
+            self.scalerX = "mobilenet"
+
 
         if hasattr(self,"X_test"):
             self.X_test = self.X_test.astype("float32")
