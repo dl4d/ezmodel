@@ -25,6 +25,8 @@ ez_data.gen_test(size=0.2)
 
 ez_data.preprocess(X="minmax",y="minmax") #on crée les scaler dans ez_data aussi
 
+ez_data.show_images(n=16)
+
 # --------------------------  [EZ Trainer] ------------------------------------
 ez_trainer = eztrainer()
 

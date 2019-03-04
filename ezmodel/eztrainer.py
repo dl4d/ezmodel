@@ -44,26 +44,26 @@ class eztrainer:
 
 
 
-    def show_images(self,n=16):
-
-        if not math.sqrt(n).is_integer():
-            raise Exception("[Fail] ezdata.show_images(): Please provide n as a perfect quare ! (2, 4, 9, 16, 25, 36, 49, 64 ...)")
-
-        augmented_images, _ = next( self.image_aug.flow( self.X_train, self.y_train, batch_size=n))
-
-        fig,axes = plt.subplots(nrows = int(math.sqrt(n)),ncols = int(math.sqrt(n)))
-        fig.tight_layout()
-        for i in range(n):
-            plt.subplot(math.sqrt(n),math.sqrt(n),i+1)
-
-            if (augmented_images[i].shape[2])==1:
-                plt.imshow(np.squeeze(augmented_images[i]),cmap="gray")
-            else:
-                plt.imshow(augmented_images[i])
-
-            plt.axis("off")
-
-        plt.show()
+    # def show_images(self,n=16):
+    #
+    #     if not math.sqrt(n).is_integer():
+    #         raise Exception("[Fail] ezdata.show_images(): Please provide n as a perfect quare ! (2, 4, 9, 16, 25, 36, 49, 64 ...)")
+    #
+    #     augmented_images, _ = next( self.image_aug.flow( self.X_train, self.y_train, batch_size=n))
+    #
+    #     fig,axes = plt.subplots(nrows = int(math.sqrt(n)),ncols = int(math.sqrt(n)))
+    #     fig.tight_layout()
+    #     for i in range(n):
+    #         plt.subplot(math.sqrt(n),math.sqrt(n),i+1)
+    #
+    #         if (augmented_images[i].shape[2])==1:
+    #             plt.imshow(np.squeeze(augmented_images[i]),cmap="gray")
+    #         else:
+    #             plt.imshow(augmented_images[i])
+    #
+    #         plt.axis("off")
+    #
+    #     plt.show()
 
 
 

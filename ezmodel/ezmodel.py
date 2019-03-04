@@ -121,7 +121,7 @@ class ezmodel:
 
     def learning_graph(self):
 
-        from IPython.display import display
+        #from IPython.display import display
         #print (self.trainer.history.keys())
         loss = []
         val_loss = []
@@ -140,29 +140,29 @@ class ezmodel:
                 else:
                     metric = self.trainer.history[key]
 
-        if not self.is_kernel():
-            print("[X] Loss Learning Graph:")
-            print("Training Loss   : ", loss)
-            print("Validation Loss : ", val_loss)
-            print("[X] Metric Learning Graph:")
-            print("Training Metrics   : ", metric)
-            print("Validation Metrics : ", val_metric)
-        else:
-            plt.figure(figsize=(15,5))
+        # if not self.is_kernel():
+        #     print("[X] Loss Learning Graph:")
+        #     print("Training Loss   : ", loss)
+        #     print("Validation Loss : ", val_loss)
+        #     print("[X] Metric Learning Graph:")
+        #     print("Training Metrics   : ", metric)
+        #     print("Validation Metrics : ", val_metric)
+        # else:
+        plt.figure(figsize=(15,5))
 
-            plt.subplot(1,2,1)
-            plt.title('Loss Learning Graph')
-            plt.plot(loss , c="red", label="Training")
-            plt.plot(val_loss, c="green", label="Validation")
-            plt.legend()
+        plt.subplot(1,2,1)
+        plt.title('Loss Learning Graph')
+        plt.plot(loss , c="red", label="Training")
+        plt.plot(val_loss, c="green", label="Validation")
+        plt.legend()
 
-            plt.subplot(1,2,2)
-            plt.title('Metric Learning Graph')
-            plt.plot(metric , c="red", label="Training")
-            plt.plot(val_metric, c="green", label="Validation")
-            plt.legend()
+        plt.subplot(1,2,2)
+        plt.title('Metric Learning Graph')
+        plt.plot(metric , c="red", label="Training")
+        plt.plot(val_metric, c="green", label="Validation")
+        plt.legend()
 
-            plt.show()
+        plt.show()
 
 
 
