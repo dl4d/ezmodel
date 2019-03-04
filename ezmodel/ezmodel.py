@@ -129,7 +129,7 @@ class ezmodel:
             print("Training Metrics   : ", metric)
             print("Validation Metrics : ", val_metric)
         else:
-            plt = figure(figsize=(10,10))
+            plt.figure(figsize=(10,10))
             plt.title('Loss Learning Graph')
             plt.plot(loss , c="red", label="Training")
             plt.plot(val_loss, c="green", label="Validation")
