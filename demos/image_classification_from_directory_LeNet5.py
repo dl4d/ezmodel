@@ -18,8 +18,8 @@ parameters = {
 data = ezset(parameters)
 #Split dataset into Train/Test subset
 train,test  = split(data,size=0.2)
-#Transform
-transformerX,transformerY = train.transform(X="standard",y="categorical")
+#Create Transformers on training set (further be used for test set when evaluated)
+transformers = train.transform(X="standard",y="categorical")
 # [EZNETWORK]  ----------------------------------------------------------------
 parameters = {
     "hidden" : [100,50,30],
@@ -39,7 +39,7 @@ ez = ezmodel(
     test  = test,
     network = net,
     optimizer = optimizer,
-    transformers = (transformerX,transformerY)
+    transformers = transformers
 )
 # Training --------------------------------------------------------------------
 parameters = {

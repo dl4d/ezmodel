@@ -370,7 +370,7 @@ class ezset:
 
 
 
-        return transformerX,transformerY
+        return (transformerX,transformerY)
 
 
     def preprocess(self,X=None,y=None):
