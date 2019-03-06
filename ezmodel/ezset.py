@@ -173,13 +173,15 @@ class ezset:
             if parameters["table.target.type"]=="string":
                 encoder = LabelEncoder()
                 Y = encoder.fit_transform(np.squeeze(Y))
-                self.synsets = encoder.classes_
+                #self.synsets = encoder.classes_
+                self.synsets = {v: k for v, k in enumerate(encoder.classes_)}
                 print("--- 'synsets' have been create into current ezset object.")
         else:
             if Y.dtype == "object":
                 encoder = LabelEncoder()
                 Y = encoder.fit_transform(np.squeeze(Y))
-                self.synsets = encoder.classes_
+                #self.synsets = encoder.classes_
+                self.synsets = {v: k for v, k in enumerate(encoder.classes_)}
                 print("--- 'synsets' have been create into current ezset object.")
 
         # if "table.target.type" in parameters:
