@@ -123,3 +123,55 @@ class ezmodel:
         self.augmentation = image_gen
         print("[X] Keras ImageDataGenerator has been added to ezmodel")
         print("\n")
+
+    # def confusion_matrix(self):
+    #     from IPython.display import display
+    #     print("[X] Confusion Matrix on Test set: ")
+    #     p = self.network.predict(self.data_test.X)
+    #     m =  pd.crosstab(
+    #             pd.Series(self.data_test.y.argmax(axis=1), name='Validation'),
+    #             pd.Series(p.argmax(axis=1), name='Prediction')
+    #             )
+    #     if not self.is_kernel():
+    #         print(m)
+    #     else:
+    #         display(m)
+
+    def learning_graph(self):
+        loss = []
+        val_loss = []
+        metric =[]
+        val_metric=[]
+
+        for key in self.history:
+            if "loss" in key:
+                if "val" in key:
+                    val_loss = self.history[key]
+                else:
+                    loss = self.history[key]
+            else:
+                if "val" in key:
+                    val_metric = self.history[key]
+                else:
+                    metric = self.history[key]
+
+
+        plt.figure(figsize=(15,5))
+
+        plt.subplot(1,2,1)
+        plt.title('Loss Learning Graph')
+        plt.plot(loss , c="red", label="Training")
+        plt.plot(val_loss, c="green", label="Validation")
+        plt.ylabel("Loss")
+        plt.xlabel("Epochs")
+        plt.legend()
+
+        plt.subplot(1,2,2)
+        plt.title('Metric Learning Graph')
+        plt.plot(metric , c="red", label="Training")
+        plt.plot(val_metric, c="green", label="Validation")
+        plt.ylabel("Metrics")
+        plt.xlabel("Epochs")
+        plt.legend()
+
+        plt.show()
