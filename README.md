@@ -22,8 +22,6 @@ Read the documentation  ad [ezmodel.io] (https://ezmodel.io)
 Ezmodel is compatible with : Python 3.6+
 
 
-#### Ezdata object
-
-#### Eztrainer object
+#### Ezset object
 
 #### Ezmodel object
