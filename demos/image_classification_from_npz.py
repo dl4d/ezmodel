@@ -24,11 +24,6 @@ train,test  = split(data,size=0.2)
 #Transform
 transformers = train.transform(X="standard",y="categorical")
 # [EZNETWORK]  ----------------------------------------------------------------
-parameters = {
-    "hidden" : [100,50,30],
-    "activation" : "relu",
-    "dropout" : 0.5
-}
 net = LeNet5(input=train)
 # [Keras Optimizer, Loss & Metrics]  ------------------------------------------
 optimizer = {
