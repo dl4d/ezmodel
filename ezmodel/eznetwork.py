@@ -1,5 +1,14 @@
 from keras.models import *
 from keras.layers import *
+from keras.applications.mobilenet import MobileNet
+from keras.applications.vgg16 import VGG16
+from keras.applications.vgg19 import VGG19
+from keras.applications.xception import Xception
+from keras.applications.densenet import DenseNet121,DenseNet169,DenseNet201
+from keras.applications.inception_resnet_v2 import InceptionResNetV2
+from keras.applications.inception_v3 import InceptionV3
+from keras.applications.nasnet import NASNetLarge,NASNetMobile
+from keras.applications.resnet50 import ResNet50
 
 
 def SmartInput(input):
@@ -24,6 +33,34 @@ def SmartClassificationRegressionOutput(input,x0):
         x = Activation("softmax") (x)
         return x
 
+#Load a pretrained Network
+def Pretrained(input,path,include_top=False,transfer=False,frozen=False):
+    if path.lower()=="mobilenet":
+        pretrained = MobileNet(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
+
+    if path.lower()=="vgg16":
+        pretrained = VGG16(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
+
+    if path.lower()=="vgg19":
+        pretrained = VGG19(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
+
+
+    if frozen:
+        for layer in pretrained.layers:
+                layer.trainable = False
+
+    return pretrained
+
+def Connect(bottom,top):
+    model = Sequential()
+    model.add(bottom)
+    model.add(GlobalAveragePooling2D())
+    model.add(top)
+    return model
+
+
+
+
 
 #LeNet5
 def LeNet5(input):
@@ -44,15 +81,16 @@ def LeNet5(input):
     x = Dense(84) (x)
     outputs = SmartClassificationRegressionOutput(input,x)
 
-    model = Model(inputs=[inputs], outputs=[outputs])
+    model = Model(inputs=inputs, outputs=outputs)
     return model
 
 #Basic Multilayer Perceptron
-def MLP(input, parameters):
+def MLP(input=None, parameters=None,pretrained=None):
 
     #Checkers:
-    if len(input.X.shape) !=2:
-        raise Exception("\n\n \t [Fail] eznetwork.MLP(): Multi Layer Perceptron are not designed to work with this kind of inputs ! Please use another Network architecture ! ")
+    if (input is not None) and (pretrained is None):
+        if len(input.X.shape) !=2:
+            raise Exception("\n\n \t [Fail] eznetwork.MLP(): Multi Layer Perceptron are not designed to work with this kind of inputs ! Please use another Network architecture ! ")
 
     if parameters is None:
         raise Exception("\n\n \t [Fail] eznetwork.MLP(): Please provide a parameters list to MLP ! ")
@@ -68,22 +106,27 @@ def MLP(input, parameters):
         else:
             raise Exception("\n\n\t [Fail] eznetwork.MLP() : Please provide hidden layer parameters as a python list !")
 
+    if pretrained is None:
+        inputs = SmartInput(input)
+    else:
+        #inputs = Input(shape=(pretrained.output_shape[3],))
+        inputs = Input(shape=(pretrained.output_shape[3],))
+        #inputs = GlobalAveragePooling2D()(inputs)
 
-    inputs = SmartInput(input)
     x = Dense(hidden[0]) (inputs)
-    if "activation" not in parameters:
+    if "activation" in parameters:
         x = Activation(parameters["activation"]) (x)
-    if "dropout" not in parameters:
+    if "dropout" in parameters:
         x = Dropout(parameters["dropout"]) (x)
     for layer in hidden[1:]:
         x = Dense(layer) (x)
-        if "activation" not in parameters:
+        if "activation" in parameters:
             x = Activation(parameters["activation"]) (x)
-        if "dropout" not in parameters:
+        if "dropout" in parameters:
             x = Dropout(parameters["dropout"]) (x)
     outputs = SmartClassificationRegressionOutput(input,x)
 
-    model = Model(inputs=[inputs], outputs=[outputs])
+    model = Model(inputs=inputs, outputs=outputs)
     return model
 
 
@@ -133,5 +176,5 @@ def UNET(input,parameters):
 
     conv10 = Conv2D(1, (1, 1), activation='sigmoid')(conv9)
 
-    model = Model(inputs=[inputs], outputs=[conv10])
+    model = Model(inputs=inputs, outputs=conv10)
     return model

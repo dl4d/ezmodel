@@ -6,38 +6,40 @@ from ezmodel.ezset import ezset
 from ezmodel.ezmodel import ezmodel
 
 from ezmodel.ezutils import split
-from ezmodel.eznetwork import LeNet5,MLP
+from ezmodel.eznetwork import Pretrained,MLP,Connect
 import keras
 
-# [EZSET]  -------------------------------------------------------------------
+# [EZSET]
 parameters = {
-    "name"        : "Iris",
-    "path"        : "C:\\Users\\daian\\Desktop\\DATA\\Iris\\iris.csv",
-    "table.target.column": "species"
+    "path"        : "C:\\Users\\daian\\Desktop\\DATA\\Skin\\skin.npz",
+    "X.key"       : "images",
+    "y.key"       : "labels",
+    "synsets.key" : "synsets"
 }
 data = ezset(parameters)
-
 # Preprocessing
-# data.dropfeature(columns=["Id"])
+# NO PREPROCESSING
 #Split dataset into Train/Test subset
 train,test  = split(data,size=0.2)
 #Transform
-transformers = train.transform(X="standard",y="categorical")
-
+transformers = train.transform(X="vgg16",y="categorical")
 # [EZNETWORK]  ----------------------------------------------------------------
-parameters = {
-    "hidden" : [100,50,30],
+mobilenet = Pretrained(input=train,path="vgg16",frozen=True)
+parameters={
+    "hidden" : [100,50],
     "activation" : "relu",
     "dropout" : 0.5
 }
-net = MLP(input=train,parameters=parameters)
+mlp = MLP(input=train,parameters=parameters,pretrained=mobilenet)
+net = Connect(mobilenet,mlp)
 # [Keras Optimizer, Loss & Metrics]  ------------------------------------------
 optimizer = {
-    "optimizer" : keras.optimizers.Adam(lr=1e-4),
+    "optimizer" : keras.optimizers.Adam(lr=1e-3),
     "loss" : keras.losses.categorical_crossentropy,
     "metrics" : [keras.metrics.categorical_accuracy]
 }
 # [EZMODEL]  ------------------------------------------------------------------
+
 ez = ezmodel(
     train = train,
     test  = test,
@@ -47,7 +49,7 @@ ez = ezmodel(
 )
 # Training --------------------------------------------------------------------
 parameters = {
-    "epochs" : 50,
+    "epochs" : 5,
     "validation_split": 0.2
 }
 ez.train(parameters)

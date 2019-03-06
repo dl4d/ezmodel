@@ -9,12 +9,13 @@ import matplotlib.pyplot as plt
 import keras
 from sklearn.model_selection import train_test_split
 import copy
+from keras.preprocessing.image import ImageDataGenerator
 
 
 
 class ezmodel:
 
-    def __init__(self,train=None,test=None,network=None,optimizer=None,transformers=None):
+    def __init__(self,train=None,test=None,network=None,optimizer=None,transformers=None,augmentation=None):
 
         if train is None:
             raise Exception("ezmodel.init() : Please provide a train dataset !")
@@ -37,8 +38,12 @@ class ezmodel:
         self.transformerY = transformers[1]
         self.model_parameters = None
         self.history = None
+        self.augmentation = None
 
         self.network.compile(**optimizer)
+
+        if augmentation is not None:
+            self.keras_augmentation(augmentation)
 
 
     def train(self,parameters=None):
@@ -64,15 +69,27 @@ class ezmodel:
 
             self.model_parameters = parameters
 
-        history = self.network.fit(
-                        self.data_train.X,
-                        self.data_train.y,
-                        validation_data=validation_data,
-                        epochs=epochs,
-                        batch_size = batch_size,
-                        callbacks=callbacks,
-                        verbose = verbose
-                        )
+        if self.augmentation is None:
+            history = self.network.fit(
+                            self.data_train.X,
+                            self.data_train.y,
+                            validation_data=validation_data,
+                            epochs=epochs,
+                            batch_size = batch_size,
+                            callbacks=callbacks,
+                            verbose = verbose
+                            )
+        else:
+            print("[X] Training with Data augmentation on Training Set.")
+            history = self.network.fit_generator(
+                            self.augmentation.flow(self.data_train.X,self.data_train.y,batch_size = batch_size),
+                            validation_data = validation_data,
+                            steps_per_epoch = self.data_train.X.shape[0]//batch_size,
+                            epochs=epochs,
+                            verbose = verbose,
+                            callbacks=callbacks
+                            )
+
         #Save history
         if self.history is None:
             self.history = history.history
@@ -96,3 +113,13 @@ class ezmodel:
         print("\n")
 
         return p
+
+
+    def keras_augmentation(self,parameters):
+        image_gen = ImageDataGenerator(**parameters)
+        if self.data_train.X is None:
+            raise Exception("[Fail] ezmodel.augmentation(): No Training set has been added to this ezmodel object")
+        image_gen.fit(self.data_train.X, augment=True)
+        self.augmentation = image_gen
+        print("[X] Keras ImageDataGenerator has been added to ezmodel")
+        print("\n")

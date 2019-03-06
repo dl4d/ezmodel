@@ -172,7 +172,7 @@ class ezset:
         if "table.target.type" in parameters:
             if parameters["table.target.type"]=="string":
                 encoder = LabelEncoder()
-                Y = encoder.fit_transform(np.squeeze(Y))
+                Y = encoder.fit_ezsetm(np.squeeze(Y))
                 #self.synsets = encoder.classes_
                 self.synsets = {v: k for v, k in enumerate(encoder.classes_)}
                 print("--- 'synsets' have been create into current ezset object.")
@@ -348,6 +348,10 @@ class ezset:
                 transformerX = to_standard(self.X)
             elif X.lower()=="mobilenet":
                 transformerX = to_mobilenet(self.X)
+            elif X.lower()=="vgg16":
+                transformerX = to_vgg16(self.X)
+            elif X.lower()=="vgg19":
+                transformerX = to_vgg19(self.X)
             else:
                 raise Exception("ezset.transform(): Unknown transformer X: ", X)
         else:
@@ -461,3 +465,11 @@ def to_categorical(data):
 #mobilenet
 def to_mobilenet(data):
     return [keras.applications.mobilenet.preprocess_input]
+
+#vgg16
+def to_vgg16(data):
+    return [keras.applications.vgg16.preprocess_input]
+
+#vgg16
+def to_vgg19(data):
+    return [keras.applications.vgg19.preprocess_input]
