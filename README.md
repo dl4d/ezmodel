@@ -25,3 +25,11 @@ Ezmodel is compatible with : Python 3.6+
 #### Ezset object
 
 #### Ezmodel object
+
+#### Eznetwork file
+
+#### Ezlosses file
+
+#### Ezutils files
+
+__Put a schematic on how does it works__

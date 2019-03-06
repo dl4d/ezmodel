@@ -1,5 +1,6 @@
 
-1. EZ transfer Learning
-
-2. When a EZmodel object is saved when we used a custom loss (dice_coefficient for example), the custom is not saved
-je pense que c'est un problème interne à Keras ... à voir.
+1. ezmodel save
+2. ezset save
+3. use a pretrained ezmodel with Pretrained instruction from eznetwork
+4. test image on the fly
+5. demo script for imagenet prediction (or anything using a pretrained eznetwork)
