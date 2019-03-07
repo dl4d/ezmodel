@@ -15,35 +15,47 @@ from keras.preprocessing.image import ImageDataGenerator
 
 class ezmodel:
 
-    def __init__(self,train=None,test=None,network=None,optimizer=None,transformers=None,augmentation=None):
+    def __init__(self,train=None,test=None,network=None,optimizer=None,transformers=None,augmentation=None,empty=False):
 
-        if train is None:
-            raise Exception("ezmodel.init() : Please provide a train dataset !")
+        if not empty:
+            if train is None:
+                raise Exception("ezmodel.init() : Please provide a train dataset !")
 
-        if test is None:
-            raise Exception("ezmodel.init() : Please provide a test dataset !")
+            if test is None:
+                raise Exception("ezmodel.init() : Please provide a test dataset !")
 
-        if network is None:
-            raise Exception("ezmodel.init(): Please provide a Keras network !")
+            if network is None:
+                raise Exception("ezmodel.init(): Please provide a Keras network !")
 
-        if optimizer is None:
-            raise Exception("ezmodel.init(): Please provide an optimizer !")
+            if optimizer is None:
+                raise Exception("ezmodel.init(): Please provide an optimizer !")
 
 
-        self.data_train   = train
-        self.data_test    = test
-        self.network = network
-        self.optimizer = optimizer
-        self.transformerX = transformers[0]
-        self.transformerY = transformers[1]
-        self.model_parameters = None
-        self.history = None
-        self.augmentation = None
+            self.data_train   = train
+            self.data_test    = test
+            self.network = network
+#            self.optimizer = optimizer
+            self.transformerX = transformers[0]
+            self.transformerY = transformers[1]
+            self.model_parameters = None
+            self.history = None
+            self.augmentation = None
 
-        self.network.compile(**optimizer)
+            self.network.compile(**optimizer)
 
-        if augmentation is not None:
-            self.keras_augmentation(augmentation)
+            if augmentation is not None:
+                self.keras_augmentation(augmentation)
+        else:
+            self.data_train   = None
+            self.data_test    = None
+            self.network = None
+#            self.optimizer = None
+            self.transformerX = None
+            self.transformerY = None
+            self.model_parameters = None
+            self.history = None
+            self.augmentation = None
+
 
 
     def train(self,parameters=None):
@@ -53,6 +65,18 @@ class ezmodel:
         verbose = 1
         batch_size = 32
         validation_data = None
+
+
+        # Transformers
+        print("[X] Transformers : ")
+        train = copy.deepcopy(self.data_train)
+        train.preprocess(X=self.transformerX,y=self.transformerY)
+        print("--- Use transformers to preprocess Training set : Done");
+        if "validation_split" not in parameters:
+            test = copy.deepcopy(self.data_test)
+            test.preprocess(X=self.transformerX,y=self.transformerY)
+            print("--- Use transformers to preprocess Test set : Done");
+
 
         if parameters is not None:
             if "epochs" in parameters:
@@ -64,15 +88,18 @@ class ezmodel:
             if "batch_size" in parameters:
                 batch_size = parameters["batch_size"]
             if "validation_split" in parameters:
-                X_train,X_valid,y_train,y_valid = train_test_split(self.data_train.X,self.data_train.y,test_size=parameters["validation_split"],random_state=None)
+                X_train,X_valid,y_train,y_valid = train_test_split(train.X,train.y,test_size=parameters["validation_split"],random_state=42)
                 validation_data = (X_valid,y_valid)
+            else:
+                print("[Notice] Test set will be used ad Validation set for training !")
+                validation_data = (test.X,test.y)
 
             self.model_parameters = parameters
 
         if self.augmentation is None:
             history = self.network.fit(
-                            self.data_train.X,
-                            self.data_train.y,
+                            train.X,
+                            train.y,
                             validation_data=validation_data,
                             epochs=epochs,
                             batch_size = batch_size,
@@ -82,9 +109,9 @@ class ezmodel:
         else:
             print("[X] Training with Data augmentation on Training Set.")
             history = self.network.fit_generator(
-                            self.augmentation.flow(self.data_train.X,self.data_train.y,batch_size = batch_size),
+                            self.augmentation.flow(train.X,train.y,batch_size = batch_size),
                             validation_data = validation_data,
-                            steps_per_epoch = self.data_train.X.shape[0]//batch_size,
+                            steps_per_epoch = train.X.shape[0]//batch_size,
                             epochs=epochs,
                             verbose = verbose,
                             callbacks=callbacks
@@ -105,15 +132,20 @@ class ezmodel:
         test.preprocess(X=self.transformerX,y=self.transformerY)
         print("--- Use transformers to preprocess Test set : Done")
         p = self.network.evaluate(test.X,test.y,verbose=0)
-        if "metrics" in self.optimizer:
-            print ("--- Loss    : ", p[0])
-            print ("--- Metrics : ", p[1])
-        else:
-            print ("--- Loss    : ", p)
-        print("\n")
-
+        print("Loss: ",self.network.loss,":",p[0])
+        k=0
+        for m in self.network.metrics:
+            print("Metrics: ",m,":",p[1+k])
+            k=k+1
         return p
 
+    def predict(self):
+        print ("[X] Prediction on Test set:")
+        test = copy.deepcopy(self.data_test)
+        test.preprocess(X=self.transformerX,y=self.transformerY)
+        print("--- Use transformers to preprocess Test set : Done")
+        p = self.network.predict(test.X,verbose=0)
+        return p
 
     def keras_augmentation(self,parameters):
         image_gen = ImageDataGenerator(**parameters)
@@ -175,3 +207,52 @@ class ezmodel:
         plt.legend()
 
         plt.show()
+
+    def save(self,filename):
+
+        print("[X] Save EZmodel as :", filename)
+
+        #Network
+        if self.network is not None:
+            self.network.save(filename+".h5")
+        else:
+            print("[Notice] No Network to save has been found !")
+
+        #Data
+        filehandler = open(filename+".data.pkl","wb")
+        pickle.dump((self.data_train,self.data_test),filehandler)
+        filehandler.close()
+
+        #Transformers
+        filehandler = open(filename+".trans.pkl","wb")
+        pickle.dump((self.transformerX,self.transformerY),filehandler)
+        filehandler.close()
+
+        filehandler = open(filename+".params.pkl","wb")
+        pickle.dump(self.model_parameters,filehandler)
+        filehandler.close()
+
+        filehandler = open(filename+".hist.pkl","wb")
+        pickle.dump(self.history,filehandler)
+        filehandler.close()
+
+        filehandler = open(filename+".aug.pkl","wb")
+        pickle.dump(self.augmentation,filehandler)
+        filehandler.close()
+
+        with ZipFile(filename+'.zip', 'w') as myzip:
+            myzip.write(filename+".h5")
+            myzip.write(filename+".data.pkl")
+            myzip.write(filename+".trans.pkl")
+            myzip.write(filename+".params.pkl")
+            myzip.write(filename+".hist.pkl")
+            myzip.write(filename+".aug.pkl")
+
+        print("--- EZ model has been saved in :", filename,".zip")
+
+        os.remove(filename+".h5")
+        os.remove(filename+".data.pkl")
+        os.remove(filename+".trans.pkl")
+        os.remove(filename+".params.pkl")
+        os.remove(filename+".hist.pkl")
+        os.remove(filename+".aug.pkl")

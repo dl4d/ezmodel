@@ -372,7 +372,7 @@ class ezset:
             transformerY = None
 
         #Transform
-        self.preprocess(X=transformerX,y=transformerY)
+        #self.preprocess(X=transformerX,y=transformerY)
 
 
 

@@ -9,6 +9,7 @@ from keras.applications.inception_resnet_v2 import InceptionResNetV2
 from keras.applications.inception_v3 import InceptionV3
 from keras.applications.nasnet import NASNetLarge,NASNetMobile
 from keras.applications.resnet50 import ResNet50
+import os
 
 
 def SmartInput(input):
@@ -34,16 +35,19 @@ def SmartClassificationRegressionOutput(input,x0):
         return x
 
 #Load a pretrained Network
-def Pretrained(input,path,include_top=False,transfer=False,frozen=False):
+def Pretrained(input=None,path=None,include_top=False,transfer=False,frozen=False):
     if path.lower()=="mobilenet":
         pretrained = MobileNet(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
-
-    if path.lower()=="vgg16":
+    elif path.lower()=="vgg16":
         pretrained = VGG16(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
-
-    if path.lower()=="vgg19":
+    elif path.lower()=="vgg19":
         pretrained = VGG19(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
-
+    else:
+        #check local model
+        if os.path.isfile(path+".h5"):
+            pretrained = load_model(path+".h5")
+        else:
+            raise Exception("eznetwork.Pretrained(): No model path: ",path," has been found !")
 
     if frozen:
         for layer in pretrained.layers:
