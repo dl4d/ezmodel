@@ -30,7 +30,7 @@ parameters = {
     "activation" : "relu",
     "dropout" : 0.5
 }
-net = MLP(input=train,parameters=parameters)
+net = MLP(input=train,transformers=transformers,parameters=parameters)
 # [Keras Optimizer, Loss & Metrics]  ------------------------------------------
 optimizer = {
     "optimizer" : keras.optimizers.Adam(lr=1e-4),

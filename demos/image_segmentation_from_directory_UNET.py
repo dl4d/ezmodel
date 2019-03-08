@@ -26,7 +26,7 @@ transformers = train.transform(X="minmax",y="minmax")
 parameters = {
     "n" : 64
 }
-net = UNET(input=train,parameters=parameters)
+net = UNET(input=train,transformers=transformers,parameters=parameters)
 # [Keras Optimizer, Loss & Metrics]  ------------------------------------------
 optimizer = {
     "optimizer" : keras.optimizers.Adam(lr=1e-4),

@@ -1,7 +1,5 @@
-
-1. ezmodel save
-2. ezset save
-3. eznetwork save ?
-3. use a pretrained ezmodel with Pretrained instruction from eznetwork
-4. test image on the fly
-5. demo script for imagenet prediction (or anything using a pretrained eznetwork)
+1. Bug: la data augmentation doit se faire dans la procédure de train et non pas dans la création de l'ezmodel !!!
+1. Bug: On utilise aucun transformer dans keras augmentation, alors que l'on devrait le faire !!! (pour que le ImageDataGenerator.fit soient bon)
+1. Flow From Directory for data augmentation training
+2. test image on the fly
+3. demo script for imagenet prediction (or anything using a pretrained eznetwork)

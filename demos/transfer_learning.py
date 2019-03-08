@@ -30,7 +30,7 @@ parameters={
     "activation" : "relu",
     "dropout" : 0.5
 }
-mlp = MLP(input=train,parameters=parameters,pretrained=mobilenet)
+mlp = MLP(input=train,transformers=transformers,parameters=parameters,pretrained=mobilenet)
 net = Connect(mobilenet,mlp)
 # [Keras Optimizer, Loss & Metrics]  ------------------------------------------
 optimizer = {

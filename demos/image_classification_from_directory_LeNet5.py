@@ -21,7 +21,7 @@ train,test  = split(data,size=0.2)
 #Create Transformers on training set (further be used for test set when evaluated)
 transformers = train.transform(X="standard",y="categorical")
 # [EZNETWORK]  ----------------------------------------------------------------
-net = LeNet5(input=train)
+net = LeNet5(input=train,transformers=transformers)
 # [Keras Optimizer, Loss & Metrics]  ------------------------------------------
 optimizer = {
     "optimizer" : keras.optimizers.Adam(lr=1e-4),

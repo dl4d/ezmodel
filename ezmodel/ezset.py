@@ -98,7 +98,6 @@ class ezset:
         print ('--- Total images :', str(tot))
         self.images = images
         self.image_paths = image_paths
-        print(image_paths)
 
         #Masks
         print ('[X] Loading Masks:', parameters["path_mask"])

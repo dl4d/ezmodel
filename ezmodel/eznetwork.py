@@ -149,7 +149,7 @@ def MLP(input=None, transformers=None, parameters=None,pretrained=None):
 
 
 # UNET network for segmentation
-def UNET(input,parameters):
+def UNET(input=None,transformers=None,parameters=None):
     #Default start number of filters
     n = 64
     if parameters is not None:

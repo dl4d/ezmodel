@@ -10,7 +10,7 @@ import keras
 from sklearn.model_selection import train_test_split
 import copy
 from keras.preprocessing.image import ImageDataGenerator
-import numpy as np
+
 
 
 class ezmodel:
@@ -44,8 +44,7 @@ class ezmodel:
             self.network.compile(**optimizer)
 
             if augmentation is not None:
-                #self.keras_augmentation(augmentation)
-                self.augmentation = augmentation #augmentation_parameters !!
+                self.keras_augmentation(augmentation)
         else:
             self.data_train   = None
             self.data_test    = None
@@ -91,8 +90,6 @@ class ezmodel:
             if "validation_split" in parameters:
                 X_train,X_valid,y_train,y_valid = train_test_split(train.X,train.y,test_size=parameters["validation_split"],random_state=42)
                 validation_data = (X_valid,y_valid)
-                train.X = np.copy(X_train)
-                train.y = np.copy(y_train)
             else:
                 print("[Notice] Test set will be used ad Validation set for training !")
                 validation_data = (test.X,test.y)
@@ -111,14 +108,8 @@ class ezmodel:
                             )
         else:
             print("[X] Training with Data augmentation on Training Set.")
-
-            #Call keras augmentation to return the generator
-            # We pass the augmentation parameters, the train set and the batch size
-            train_generators = self.keras_augmentation(self.augmentation,train,batch_size)
-
             history = self.network.fit_generator(
-                            #self.augmentation.flow(train.X,train.y,batch_size = batch_size),
-                            train_generators,
+                            self.augmentation.flow(train.X,train.y,batch_size = batch_size),
                             validation_data = validation_data,
                             steps_per_epoch = train.X.shape[0]//batch_size,
                             epochs=epochs,
@@ -156,42 +147,14 @@ class ezmodel:
         p = self.network.predict(test.X,verbose=0)
         return p
 
-    def keras_augmentation(self,parameters,train,batch_size):
-
-        seed=1
+    def keras_augmentation(self,parameters):
         image_gen = ImageDataGenerator(**parameters)
-        image_gen.fit(train.X, augment=True, seed=seed)
-        print("[X] Keras ImageDataGenerator has been added to ezmodel for X dataset")
-
-        #Case of segmentation: Need two data augmentation :
-        # One for images, one for masks
-        if np.array_equal(train.X.shape,train.y.shape):
-            mask_gen = ImageDataGenerator(**parameters)
-            mask_gen.fit(train.y, augment=True, seed=seed)
-            mask_generator = mask_gen.flow(train.y,batch_size = batch_size,seed=seed)
-            image_generator = image_gen.flow(train.X,batch_size = batch_size,seed=seed)
-            print("--- Same Keras ImageDataGenerator has been added to ezmodel for y dataset")
-            return zip(image_generator, mask_generator)
-        else:
-            image_generator = image_gen.flow(train.X,train.y,batch_size = batch_size,seed=seed)
-            return image_generator
-
-
-
-
-
-
-
-
-        # image_gen = ImageDataGenerator(**parameters)
-        # if self.data_train.X is None:
-        #     raise Exception("[Fail] ezmodel.augmentation(): No Training set has been added to this ezmodel object")
-        # image_gen.fit(self.data_train.X, augment=True)
-        # self.augmentation = image_gen
-        # print("[X] Keras ImageDataGenerator has been added to ezmodel")
-        # print("\n")
-
-
+        if self.data_train.X is None:
+            raise Exception("[Fail] ezmodel.augmentation(): No Training set has been added to this ezmodel object")
+        image_gen.fit(self.data_train.X, augment=True)
+        self.augmentation = image_gen
+        print("[X] Keras ImageDataGenerator has been added to ezmodel")
+        print("\n")
     # def keras_augmentation(self,parameters):
     #
     #     # Transformers

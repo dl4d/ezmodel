@@ -6,27 +6,33 @@ from ezmodel.ezset import ezset
 from ezmodel.ezmodel import ezmodel
 
 from ezmodel.ezutils import split,show_images
-from ezmodel.eznetwork import LeNet5
+from ezmodel.eznetwork import UNET
+from ezmodel import ezlosses
 import keras
 
 # [EZSET]  -------------------------------------------------------------------
-parameters = {
-    "name"        : "Bacteria",
-    "path"        : "C:\\Users\\daian\\Desktop\\DATA\\bacteria\\",
-    "resize"      : (32,32)
+parameters={
+    "name"      : "Blob",
+    "path"      : "C:\\Users\\daian\\Desktop\\DATA\\Blob\\images\\",
+    "path_mask" : "C:\\Users\\daian\\Desktop\\DATA\\Blob\\masks\\",
+    "resize"    : (64,64)
 }
 data = ezset(parameters)
+
 #Split dataset into Train/Test subset
 train,test  = split(data,size=0.2)
-#Create Transformers on training set (further be used for test set when evaluated)
-transformers = train.transform(X="standard",y="categorical")
+#Transform
+transformers = train.transform(X="minmax",y="minmax")
 # [EZNETWORK]  ----------------------------------------------------------------
-net = LeNet5(input=train,transformers=transformers)
+parameters = {
+    "n" : 64
+}
+net = UNET(input=train,transformers=transformers,parameters=parameters)
 # [Keras Optimizer, Loss & Metrics]  ------------------------------------------
 optimizer = {
-    "optimizer" : keras.optimizers.Adam(lr=1e-4),
-    "loss" : keras.losses.categorical_crossentropy,
-    "metrics" : [keras.metrics.categorical_accuracy]
+    "optimizer" : keras.optimizers.Adam(lr=1e-5),
+    "loss"      : ezlosses.dice_loss,
+    "metrics"   : [ezlosses.dice_metrics,keras.metrics.mean_squared_error]
 }
 # [EZMODEL]  ------------------------------------------------------------------
 augmentation_parameters={
@@ -44,14 +50,12 @@ ez = ezmodel(
     transformers = transformers,
     augmentation = augmentation_parameters
 )
-
 # Training --------------------------------------------------------------------
 parameters = {
     "epochs" : 50,
-    "validation_split": 0.2
 }
 ez.train(parameters)
 # Evaluation ------------------------------------------------------------------
 ez.evaluate()
-ez.learning_graph()
-ez.confusion_matrix()
+# save
+ez.save("blob")
