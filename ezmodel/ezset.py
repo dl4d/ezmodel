@@ -88,7 +88,7 @@ class ezset:
         #Images
         print ('[X] Loading Images:', parameters["path"])
         i=0
-        for filename in os.listdir(parameters["path"]):
+        for filename in os.listdir(parameters["path"]).sort():
             curimg = os.path.join(parameters["path"], filename)
             img = Image.open(curimg)
             images.append(img)
@@ -103,7 +103,7 @@ class ezset:
         #Masks
         print ('[X] Loading Masks:', parameters["path_mask"])
         i=0
-        for filename in os.listdir(parameters["path_mask"]):
+        for filename in os.listdir(parameters["path_mask"]).sort():
             curimg = os.path.join(parameters["path_mask"], filename)
             img = Image.open(curimg)
             masks.append(img)
