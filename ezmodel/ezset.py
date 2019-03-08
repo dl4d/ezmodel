@@ -98,6 +98,7 @@ class ezset:
         print ('--- Total images :', str(tot))
         self.images = images
         self.image_paths = image_paths
+        print(image_paths)
 
         #Masks
         print ('[X] Loading Masks:', parameters["path_mask"])
@@ -112,6 +113,7 @@ class ezset:
         print ('--- Total images :', str(tot))
         self.masks = masks
         self.mask_paths = mask_paths
+        print(image_paths)
 
 
         print("\n")
@@ -430,7 +432,7 @@ def to_minmax(data):
         a = data
         b = scaler.fit(a)
         scalers.append(b.transform)
-    return [scaler]
+    return scalers
 
 #Standard scaler
 def to_standard(data):

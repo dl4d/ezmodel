@@ -6,51 +6,51 @@ from ezmodel.ezset import ezset
 from ezmodel.ezmodel import ezmodel
 
 from ezmodel.ezutils import split,show_images
-from ezmodel.eznetwork import LeNet5
+from ezmodel.eznetwork import MLP
 import keras
 
 # [EZSET]  -------------------------------------------------------------------
 parameters = {
-    "name"        : "Bacteria",
-    "path"        : "C:\\Users\\daian\\Desktop\\DATA\\bacteria\\",
-    "resize"      : (32,32)
+    "name"        : "Bacteria Table",
+    "path"        : "C:\\Users\\daian\\Desktop\\DATA\\bacteria_csv\\bacteria.csv",
+    "table.target.column" : "Label"
 }
 data = ezset(parameters)
+
 #Split dataset into Train/Test subset
 train,test  = split(data,size=0.2)
 #Create Transformers on training set (further be used for test set when evaluated)
-transformers = train.transform(X="standard",y="categorical")
-# [EZNETWORK]  ----------------------------------------------------------------
-net = LeNet5(input=train)
+transformers = train.transform(X="minmax",y="categorical")
+
+# # [EZNETWORK]  ----------------------------------------------------------------
+parameters = {
+    "hidden" : [100],
+    "activation" : "sigmoid"
+}
+net = MLP(input=train,transformers=transformers,parameters=parameters)
+
+net.summary()
+
 # [Keras Optimizer, Loss & Metrics]  ------------------------------------------
 optimizer = {
-    "optimizer" : keras.optimizers.Adam(lr=1e-4),
+    "optimizer" : keras.optimizers.Adam(lr=1e-3),
     "loss" : keras.losses.categorical_crossentropy,
     "metrics" : [keras.metrics.categorical_accuracy]
 }
 # [EZMODEL]  ------------------------------------------------------------------
-augmentation_parameters={
-    "rotation_range" : 15,
-    "width_shift_range" : .15,
-    "height_shift_range" : .15,
-    "horizontal_flip"  : True
-}
-
 ez = ezmodel(
     train = train,
     test  = test,
     network = net,
     optimizer = optimizer,
-    transformers = transformers,
-    augmentation = augmentation_parameters
+    transformers = transformers
 )
-
+#
 # Training --------------------------------------------------------------------
 parameters = {
-    "epochs" : 50,
-    "validation_split": 0.2
+    "epochs" : 50
 }
 ez.train(parameters)
-# Evaluation ------------------------------------------------------------------
+# # Evaluation ------------------------------------------------------------------
 ez.evaluate()
 ez.learning_graph()
