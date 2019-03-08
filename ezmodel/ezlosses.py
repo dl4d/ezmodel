@@ -1,7 +1,9 @@
 import keras.backend as K
 
 
-def dice_loss(y_true, y_pred, smooth=1e-6):
+
+#def dice_loss(y_true, y_pred, smooth=1e-6):
+def dice_loss(y_true, y_pred, smooth=1.):
 
     """ Loss function base on dice coefficient.
     source:     https://analysiscenter.github.io/radio/_modules/radio/models/keras/losses.html

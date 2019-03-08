@@ -113,8 +113,6 @@ class ezset:
         print ('--- Total images :', str(tot))
         self.masks = masks
         self.mask_paths = mask_paths
-        print(image_paths)
-
 
         print("\n")
 
@@ -215,10 +213,10 @@ class ezset:
 
         k=0
         tot=0
-        for subdir in os.listdir(parameters["path"]):
+        for subdir in sorted(os.listdir(parameters["path"])):
             curdir = os.path.join(parameters["path"],subdir)
             i=0
-            for filename in os.listdir(curdir):
+            for filename in sorted(os.listdir(curdir)):
                 curimg = os.path.join(curdir, filename)
                 img = Image.open(curimg)
                 images.append(img)
