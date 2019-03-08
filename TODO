@@ -1,5 +1,5 @@
-1. Bug: la data augmentation doit se faire dans la procédure de train et non pas dans la création de l'ezmodel !!!
-1. Bug: On utilise aucun transformer dans keras augmentation, alors que l'on devrait le faire !!! (pour que le ImageDataGenerator.fit soient bon)
 1. Flow From Directory for data augmentation training
 2. test image on the fly
 3. demo script for imagenet prediction (or anything using a pretrained eznetwork)
+4. SMOTING binary classes for imbalance: need an smote_oversampling() function into ezset
+5. Add example dataset like MNIST, Bacteria, Methylom, Blob, Skin
