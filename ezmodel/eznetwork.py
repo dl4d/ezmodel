@@ -234,7 +234,7 @@ def AlexNet(input=None,transformers=None,parameters=None):
     x = Activation('relu') (x)
     x = MaxPooling2D(pool_size=(2,2)) (x)
 
-    # x = Flatten() (x)
+     x = Flatten() (x)
     # x = Dense(3072) (x)
     # x = BatchNormalization() (x)
     # x = Activation('relu') (x)
