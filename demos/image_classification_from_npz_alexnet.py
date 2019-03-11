@@ -6,7 +6,7 @@ from ezmodel.ezset import ezset
 from ezmodel.ezmodel import ezmodel
 
 from ezmodel.ezutils import split
-from ezmodel.eznetwork import AlexNet
+from ezmodel.eznetwork import SmallAlexNet
 import keras
 
 # [EZSET]
@@ -23,7 +23,7 @@ train,test  = split(data,size=0.2)
 #Transform
 transformers = train.transform(X="standard",y="categorical")
 # [EZNETWORK]  ----------------------------------------------------------------
-net = AlexNet(input=train,transformers=transformers)
+net = SmallAlexNet(input=train,transformers=transformers)
 net.summary()
 sys.exit()
 

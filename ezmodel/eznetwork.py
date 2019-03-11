@@ -197,7 +197,7 @@ def UNET(input=None,transformers=None,parameters=None):
     model = Model(inputs=inputs, outputs=conv10)
     return model
 
-def AlexNet(input=None,transformers=None,parameters=None):
+def SmallAlexNet(input=None,transformers=None,parameters=None):
 
     #Temporary transform data
     if transformers is not None:
@@ -207,40 +207,37 @@ def AlexNet(input=None,transformers=None,parameters=None):
         input0 = input
 
     inputs = SmartInput(input0)
-    x = Conv2D(filters=96, kernel_size=(11,11),padding='same') (inputs)
+    x = Conv2D(filters=96, kernel_size=(11,11),padding='valid',strides=(2,2)) (inputs)
     x = BatchNormalization() (x)
     x = Activation('relu') (x)
     x = MaxPooling2D(pool_size=(2,2)) (x)
 
-    x = Conv2D(filters=256, kernel_size=(5,5), padding='same') (x)
+    x = Conv2D(filters=256, kernel_size=(5,5), padding='valid',strides=(1,1)) (x)
     x = BatchNormalization() (x)
     x = Activation('relu') (x)
     x = MaxPooling2D(pool_size=(2,2)) (x)
 
-    x = ZeroPadding2D() (x)
-    x = Conv2D(filters=512, kernel_size=(3,3), padding='same') (x)
-    x = BatchNormalization() (x)
-    x = Activation('relu') (x)
-    x = MaxPooling2D(pool_size=(2,2)) (x)
-
-    x = ZeroPadding2D() (x)
-    x = Conv2D(filters=1024, kernel_size=(3,3), padding='same') (x)
+    x = Conv2D(filters=384, kernel_size=(3,3), padding='valid') (x)
     x = BatchNormalization() (x)
     x = Activation('relu') (x)
 
-    x = ZeroPadding2D() (x)
-    x = Conv2D(filters=1024, kernel_size=(3,3), padding='same') (x)
+    x = Conv2D(filters=384, kernel_size=(3,3), padding='valid') (x)
+    x = BatchNormalization() (x)
+    x = Activation('relu') (x)
+
+    x = Conv2D(filters=256, kernel_size=(3,3), padding='valid') (x)
     x = BatchNormalization() (x)
     x = Activation('relu') (x)
     x = MaxPooling2D(pool_size=(2,2)) (x)
 
     x = Flatten() (x)
-    # x = Dense(3072) (x)
-    # x = BatchNormalization() (x)
-    # x = Activation('relu') (x)
-    # x = Dropout(0.5) (x)
 
-    x = Dense(4096) (x)
+    x = Dense(1024) (x)
+    x = Activation('relu') (x)
+    x = Dropout(0.4) (x)
+    x = BatchNormalization() (x)
+
+    x = Dense(1024) (x)
     x = Activation('relu') (x)
     x = Dropout(0.4) (x)
     x = BatchNormalization() (x)
