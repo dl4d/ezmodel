@@ -337,6 +337,7 @@ class ezset:
         else:
             self.name = "NoName"
         print("[X] Loading from : " + parameters["path"])
+        print ("--- 'X' and 'y' tensors have been created into current ezset object.")
         print("\n")
 
     def transform(self,X=None,y=None):

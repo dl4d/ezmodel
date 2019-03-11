@@ -196,3 +196,56 @@ def UNET(input=None,transformers=None,parameters=None):
 
     model = Model(inputs=inputs, outputs=conv10)
     return model
+
+def AlexNet(input=None,transformers=None,parameters=None):
+
+    #Temporary transform data
+    if transformers is not None:
+        input0 = copy.deepcopy(input)
+        input0.preprocess(X=transformers[0],y=transformers[1])
+    else:
+        input0 = input
+
+    inputs = SmartInput(input0)
+    x = Conv2D(filters=96, kernel_size=(11,11),padding='same') (inputs)
+    x = BatchNormalization() (x)
+    x = Activation('relu') (x)
+    x = MaxPooling2D(pool_size=(2,2)) (x)
+
+    x = Conv2D(filters=256, kernel_size=(5,5), padding='same') (x)
+    x = BatchNormalization() (x)
+    x = Activation('relu') (x)
+    x = MaxPooling2D(pool_size=(2,2)) (x)
+
+    x = ZeroPadding2D() (x)
+    x = Conv2D(filters=512, kernel_size=(3,3), padding='same') (x)
+    x = BatchNormalization() (x)
+    x = Activation('relu') (x)
+    x = MaxPooling2D(pool_size=(2,2)) (x)
+
+    x = ZeroPadding2D() (x)
+    x = Conv2D(filters=1024, kernel_size=(3,3), padding='same') (x)
+    x = BatchNormalization() (x)
+    x = Activation('relu') (x)
+
+    x = ZeroPadding2D() (x)
+    x = Conv2D(filters=1024, kernel_size=(3,3), padding='same') (x)
+    x = BatchNormalization() (x)
+    x = Activation('relu') (x)
+    x = MaxPooling2D(pool_size=(2,2)) (x)
+
+    # x = Flatten() (x)
+    # x = Dense(3072) (x)
+    # x = BatchNormalization() (x)
+    # x = Activation('relu') (x)
+    # x = Dropout(0.5) (x)
+
+    x = Dense(4096) (x)
+    x = Activation('relu') (x)
+    x = Dropout(0.4) (x)
+    x = BatchNormalization() (x)
+
+    outputs = SmartClassificationRegressionOutput(input0,x)
+
+    model = Model(inputs=inputs, outputs=outputs)
+    return model

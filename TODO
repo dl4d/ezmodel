@@ -3,3 +3,11 @@
 3. demo script for imagenet prediction (or anything using a pretrained eznetwork)
 4. SMOTING binary classes for imbalance: need an smote_oversampling() function into ezset
 5. Add example dataset like MNIST, Bacteria, Methylom, Blob, Skin
+6. Implementation of YOLO like architecture
+7. Implementation of basic autoencoder (AE)
+8. Implementation of convolutional autoencoder (CAE)
+9. Implementation of variational autoencoder (VA)
+10. Extraction and visualization of network layer weight for convolutional neural networks
+11. Function to show segmentation prediction mask on original images (either lasso or color superimposed)
+12. Take metric/loss into learning Graph
+13. Replace 0/1/2 .. into the confusion matrix in case we have a synset into the ezset
