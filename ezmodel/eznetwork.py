@@ -68,6 +68,22 @@ def Connect(bottom,top):
 
 
 
+def customCNN(input=None, transformers=None, parameters=None):
+    #Checkers:
+    if len(input.X.shape) !=4:
+        raise Exception("\n\n \t [Fail] eznetwork.MLP(): LeNet5 convnet is not designed to work with this kind of inputs ! Please use another Network architecture ! ")
+
+    #Temporary transform data
+    if transformers is not None:
+        input0 = copy.deepcopy(input)
+        input0.preprocess(X=transformers[0],y=transformers[1])
+    else:
+        input0 = input
+
+    inputs = SmartInput(input0)
+
+
+
 #LeNet5
 def LeNet5(input=None, transformers=None, parameters=None):
 
@@ -83,7 +99,7 @@ def LeNet5(input=None, transformers=None, parameters=None):
         input0 = input
 
     inputs = SmartInput(input0)
-    x = Conv2D(6, kernel_size = (5, 5), strides=(1,1), padding="valid",input_shape=(32, 32, 1)) (inputs)
+    x = Conv2D(6, kernel_size = (5, 5), strides=(1,1), padding="valid") (inputs)
     x = Activation("relu") (x)
     x = MaxPooling2D(pool_size=(2, 2), strides=(2, 2)) (x)
     x = Conv2D(16, kernel_size = (5, 5), strides=(1,1), padding="valid") (x)
