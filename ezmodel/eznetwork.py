@@ -68,19 +68,19 @@ def Connect(bottom,top):
 
 
 
-def customCNN(input=None, transformers=None, parameters=None):
-    #Checkers:
-    if len(input.X.shape) !=4:
-        raise Exception("\n\n \t [Fail] eznetwork.MLP(): LeNet5 convnet is not designed to work with this kind of inputs ! Please use another Network architecture ! ")
-
-    #Temporary transform data
-    if transformers is not None:
-        input0 = copy.deepcopy(input)
-        input0.preprocess(X=transformers[0],y=transformers[1])
-    else:
-        input0 = input
-
-    inputs = SmartInput(input0)
+# def customCNN(input=None, transformers=None, parameters=None):
+#     #Checkers:
+#     if len(input.X.shape) !=4:
+#         raise Exception("\n\n \t [Fail] eznetwork.MLP(): LeNet5 convnet is not designed to work with this kind of inputs ! Please use another Network architecture ! ")
+#
+#     #Temporary transform data
+#     if transformers is not None:
+#         input0 = copy.deepcopy(input)
+#         input0.preprocess(X=transformers[0],y=transformers[1])
+#     else:
+#         input0 = input
+#
+#     inputs = SmartInput(input0)
 
 
 
