@@ -28,14 +28,18 @@ transformers = train.transform(X="standard",y="categorical")
 # [EZNETWORK with custome EZBLOCKS]
 
 #LeNet5
-conv1 = ConvBlock(filters=6,kernel_size=(5,5),activation="relu",pooling=(2,2))
-conv2 = conv1.copy(filters=16)
-dense1 = DenseBlock(units=120)
-dense2 = dense1.copy(units=84)
-net = ConnectBlock(input=train,transformers=transformers,blocks=[conv1,conv2,dense1,dense2])
+# conv1 = ConvBlock(filters=6,kernel_size=(5,5),activation="relu",pooling=(2,2))
+# conv2 = conv1.copy(filters=16)
+# dense1 = DenseBlock(units=120)
+# dense2 = dense1.copy(units=84)
+# net = ConnectBlock(input=train,transformers=transformers,blocks=[conv1,conv2,dense1,dense2])
+# net.summary()
 
-net.summary()
-
+#One Inception Block
+incept = InceptionBlock(filters=64,activation="relu")
+dense = DenseBlock(units=10) (incept)
+#net = ConnectBlock(input=train,transformers=transformers,blocks=[incept,dense])
+#net.summary()
 
 
 
