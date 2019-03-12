@@ -5,6 +5,7 @@ from keras.applications import *
 # from keras.applications.vgg19 import VGG19
 # from keras.applications.xception import Xception
 # from keras.applications.mobilenet import MobileNet
+# from keras.applications.mobilenet_v2 import MobileNetV2
 # from keras.applications.resnet50 import ResNet50
 # from keras.applications.inception_v3 import InceptionV3
 
@@ -59,6 +60,8 @@ def SmartClassificationRegressionOutputSequential(input):
 def Pretrained(input=None,path=None,include_top=False,transfer=False,frozen=False):
     if path.lower()=="mobilenet":
         pretrained = mobilenet.MobileNet(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
+    if path.lower()=="mobilenetv2":
+        pretrained = mobilenet_v2.MobileNetV2(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
     elif path.lower()=="vgg16":
         pretrained = vgg16.VGG16(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
     elif path.lower()=="vgg19":
@@ -82,6 +85,12 @@ def Connect(bottom,top):
     model.add(GlobalAveragePooling2D())
     model.add(top)
     return model
+
+
+# def TransferNetwork(input=None,transformers=None,from=None,top=None):
+#     bottom = Pretrained(input=train,path=from,frozen=True)
+#     mlp = MLP(input=train,transformers=transformers,parameters=top,pretrained=bottom)
+#     return Connect(bottom,mlp)
 
 
 
@@ -337,6 +346,34 @@ def MobileNet(input=None,transformers=None,parameters=None):
     model.add(Reshape((classes,)))
 
     return model
+
+def MobileNetV2(input=None,transformers=None,parameters=None):
+
+    #Temporary transform data
+    if transformers is not None:
+        input0 = copy.deepcopy(input)
+        input0.preprocess(X=transformers[0],y=transformers[1])
+    else:
+        input0 = input
+
+    inputs = SmartInput(input0)
+    model = Sequential()
+    bottom = mobilenet_v2.MobileNetV2(input_tensor=inputs,weights=None,include_top=False,pooling="avg")
+    model.add(bottom)
+
+    if parameters is not None:
+        if "hidden" in parameters:
+            for hidden in parameters["hidden"]:
+                model.add(Dense(hidden))
+                if "activation" in parameters:
+                    model.add(Activation(parameters["activation"]))
+                if "dropout" in parameters:
+                    model.add(Dropout(parameters["dropout"]))
+    model.add(SmartClassificationRegressionOutputSequential(input0))
+
+
+    return model
+
 
 def Xception(input=None,transformers=None,parameters=None):
 

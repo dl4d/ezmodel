@@ -72,13 +72,13 @@ class ConvBlock:
 
     def get(self,inputs):
         x = Conv2D(filters=self.filters,kernel_size=self.kernel_size,strides=self.strides,padding=self.padding) (inputs)
-        if block.activation is not None:
+        if self.activation is not None:
             x = Activation(self.activation) (x)
-        if block.dropout is not None:
+        if self.dropout is not None:
             x = Dropout(self.dropout) (x)
-        if block.pooling is not None:
+        if self.pooling is not None:
             x = MaxPooling2D(pool_size=self.pooling) (x)
-        if block.bn is not None:
+        if self.bn is not None:
             x = BatchNormalization() (x)
         return x
 

@@ -6,7 +6,7 @@ from ezmodel.ezset import ezset
 from ezmodel.ezmodel import ezmodel
 from ezmodel.ezutils import split
 from ezmodel.ezblocks import *
-from ezmodel.eznetwork import VGG16,VGG19,Xception,MobileNet,InceptionV3,ResNet50
+from ezmodel.eznetwork import VGG16,VGG19,Xception,MobileNet,InceptionV3,ResNet50,MobileNetV2
 
 # [EZSET]
 parameters = {
@@ -43,33 +43,37 @@ net.summary()
 
 # [EZMODEL inherited from Keras and converted to ezmodel]
 
-# --  VGG16 --
-model = VGG16(input=train,transformers=transformers,parameters=None)
-model.summary()
+# # --  VGG16 --
+# model = VGG16(input=train,transformers=transformers,parameters=None)
+# model.summary()
+#
+# # --  VGG19 --
+# parameters={
+#     "hidden"    : [1000,1000],
+#     "activation": "relu",
+#     "dropout"   : 0.5
+# }
+# model = VGG19(input=train,transformers=transformers,parameters=None)
+# model.summary()
+#
+# # --  Xception --
+# model = Xception(input=train,transformers=transformers,parameters=None)
+# model.summary()
+#
+# # --  MobileNet --
+# model = MobileNet(input=train,transformers=transformers,parameters=None)
+# model.summary()
+#
+# # --  InceptionV3 --
+# model = InceptionV3(input=train,transformers=transformers,parameters=None)
+# model.summary()
+#
+# # --  ResNet50 --
+# model = ResNet50(input=train,transformers=transformers,parameters=None)
+# model.summary()
 
-# --  VGG19 --
-parameters={
-    "hidden"    : [1000,1000],
-    "activation": "relu",
-    "dropout"   : 0.5
-}
-model = VGG19(input=train,transformers=transformers,parameters=None)
-model.summary()
-
-# --  Xception --
-model = Xception(input=train,transformers=transformers,parameters=None)
-model.summary()
-
-# --  MobileNet --
-model = MobileNet(input=train,transformers=transformers,parameters=None)
-model.summary()
-
-# --  InceptionV3 --
-model = InceptionV3(input=train,transformers=transformers,parameters=None)
-model.summary()
-
-# --  ResNet50 --
-model = ResNet50(input=train,transformers=transformers,parameters=None)
+# --  MobileNetV2 --
+model = MobileNetV2(input=train,transformers=transformers,parameters=None)
 model.summary()
 
 
