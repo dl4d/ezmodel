@@ -10,6 +10,8 @@ import math
 import requests
 from io import BytesIO
 from urllib.request import urlopen
+from collections import Counter
+import copy
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, LabelEncoder
@@ -412,6 +414,30 @@ class ezset:
 
     def flatten(self):
         self.X = self.X.reshape(-1,self.X.shape[1]*self.X.shape[2]*self.X.shape[3])
+        print("[X] Flatten: Done")
+
+    def undersampling(self,min):
+        c = Counter(self.y)
+        u = np.unique(self.y)
+        indices = []
+        for i in range(int(u.max()+1)):
+            indix = np.where(self.y==i)[0].tolist()
+            if c[i]>=min:
+                r = random.sample(indix,min)
+            else:
+                r = indix
+            indices+=r
+
+        self.X = self.X[indices]
+        self.y = self.y[indices]
+        print("[X] Undersampling with min=",min,": Done")
+
+
+
+
+
+
+
 
 
 
