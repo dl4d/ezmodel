@@ -66,6 +66,10 @@ def Pretrained(input=None,path=None,include_top=False,transfer=False,frozen=Fals
         pretrained = vgg16.VGG16(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
     elif path.lower()=="vgg19":
         pretrained = vgg19.VGG19(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
+    elif path.lower()=="xception":
+        pretrained = xception.Xception(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
+    elif path.lower()=="inceptionv3":
+        pretrained = inception_v3.InceptionV3(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
     else:
         #check local model
         if os.path.isfile(path+".h5"):

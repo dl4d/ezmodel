@@ -19,3 +19,5 @@ data = ezset(parameters)
 
 
 data.undersampling(min=200)
+
+transformers = data.transform(X="inceptionv3",y="categorical")

@@ -350,6 +350,12 @@ class ezset:
                 transformerX = to_standard(self.X)
             elif X.lower()=="mobilenet":
                 transformerX = to_mobilenet(self.X)
+            elif X.lower()=="mobilenetv2":
+                transformerX = to_mobilenetv2(self.X)
+            elif X.lower()=="xception":
+                transformerX = to_xception(self.X)
+            elif X.lower()=="inceptionv3":
+                transformerX = to_inceptionv3(self.X)
             elif X.lower()=="vgg16":
                 transformerX = to_vgg16(self.X)
             elif X.lower()=="vgg19":
@@ -491,6 +497,19 @@ def to_categorical(data):
 #mobilenet
 def to_mobilenet(data):
     return [keras.applications.mobilenet.preprocess_input]
+
+#mobilenetv2
+def to_mobilenetv2(data):
+    return [keras.applications.mobilenet_v2.preprocess_input]
+
+#xception
+def to_xception(data):
+    return [keras.applications.xception.preprocess_input]
+
+#inceptionv3
+def to_inceptionv3(data):
+    return [keras.applications.inception_v3.preprocess_input]
+
 
 #vgg16
 def to_vgg16(data):
