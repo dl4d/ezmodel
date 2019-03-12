@@ -43,21 +43,32 @@ net.summary()
 
 # [EZMODEL inherited from Keras and converted to ezmodel]
 
+# --  VGG16 --
 model = VGG16(input=train,transformers=transformers,parameters=None)
 model.summary()
 
+# --  VGG19 --
+parameters={
+    "hidden"    : [1000,1000],
+    "activation": "relu",
+    "dropout"   : 0.5
+}
 model = VGG19(input=train,transformers=transformers,parameters=None)
 model.summary()
 
+# --  Xception --
 model = Xception(input=train,transformers=transformers,parameters=None)
 model.summary()
 
+# --  MobileNet --
 model = MobileNet(input=train,transformers=transformers,parameters=None)
 model.summary()
 
+# --  InceptionV3 --
 model = InceptionV3(input=train,transformers=transformers,parameters=None)
 model.summary()
 
+# --  ResNet50 --
 model = ResNet50(input=train,transformers=transformers,parameters=None)
 model.summary()
 
