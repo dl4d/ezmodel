@@ -60,7 +60,7 @@ def SmartClassificationRegressionOutputSequential(input):
 def Pretrained(input=None,path=None,include_top=False,transfer=False,frozen=False):
     if path.lower()=="mobilenet":
         pretrained = mobilenet.MobileNet(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
-    if path.lower()=="mobilenetv2":
+    elif path.lower()=="mobilenetv2":
         pretrained = mobilenet_v2.MobileNetV2(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
     elif path.lower()=="vgg16":
         pretrained = vgg16.VGG16(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
