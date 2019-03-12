@@ -20,6 +20,16 @@ class DenseBlock:
     def __call__(self,object):
         self.father = object
 
+    def get(self,inputs):
+
+        x = Dense(self.units) (inputs)
+        if self.activation is not None:
+            x = Activation(self.activation) (x)
+        if self.dropout is not None:
+            x = Dropout(self.dropout) (x)
+        if self.bn is not None:
+            x = BatchNormalization() (x)
+        return x
 
     # def copy(self,units=None,activation=None,dropout=None,bn=None):
     #
@@ -60,6 +70,18 @@ class ConvBlock:
     def __call__(self,object):
         self.father = object
 
+    def get(self,inputs):
+        x = Conv2D(filters=self.filters,kernel_size=self.kernel_size,strides=self.strides,padding=self.padding) (inputs)
+        if block.activation is not None:
+            x = Activation(self.activation) (x)
+        if block.dropout is not None:
+            x = Dropout(self.dropout) (x)
+        if block.pooling is not None:
+            x = MaxPooling2D(pool_size=self.pooling) (x)
+        if block.bn is not None:
+            x = BatchNormalization() (x)
+        return x
+
 
     # def copy(self,filters=None,kernel_size=None,strides=None,padding=None,activation=None,dropout=None,bn=None):
     #
@@ -98,7 +120,64 @@ class InceptionBlock:
     def __call__(self,object):
         self.father = object
 
+    def get(self,inputs):
+        #tower1
+        tower1 = Conv2D(filters=self.filters,kernel_size=(1,1),activation=self.activation,padding="same") (inputs)
+        tower1 = Conv2D(filters=self.filters,kernel_size=(3,3),activation=self.activation,padding="same") (tower1)
+        #tower2
+        tower2 = Conv2D(filters=self.filters,kernel_size=(1,1),activation=self.activation,padding="same") (inputs)
+        tower2 = Conv2D(filters=self.filters,kernel_size=(5,5),activation=self.activation,padding="same") (tower2)
+        #tower3
+        tower3 = MaxPooling2D(pool_size=(3,3), strides=(1,1), padding='same')(inputs)
+        tower3 = Conv2D(filters=self.filters,kernel_size=(1,1),activation=self.activation,padding="same") (tower3)
 
+        return concatenate([tower1,tower2,tower3],axis=3)
+
+class NaiveInceptionBlock:
+    def __init__(self,filters,activation="relu"):
+
+        if filters is None:
+            raise Exception("ezmodel.InceptionBlock() : Please define a number of filters with 'filters' parameters")
+
+        self.filters = filters
+        self.activation = activation
+        self.father = None
+
+    def __call__(self,object):
+        self.father = object
+
+    def get(self,inputs):
+        tower1 = Conv2D(filters=self.filters,kernel_size=(1,1),padding="same") (inputs)
+        tower2 = Conv2D(filters=self.filters,kernel_size=(3,3),padding="same") (inputs)
+        tower3 = Conv2D(filters=self.filters,kernel_size=(5,5),padding="same") (inputs)
+        tower4 = MaxPooling2D(pool_size=(3,3), strides=(1,1), padding='same')(inputs)
+        return concatenate([tower1,tower2,tower3,tower4],axis=3)
+
+class InceptionBlockDimReduce:
+    def __init__(self,filters,activation="relu"):
+
+        if filters is None:
+            raise Exception("ezmodel.InceptionBlock() : Please define a number of filters with 'filters' parameters")
+
+        self.filters = filters
+        self.activation = activation
+        self.father = None
+    def __call__(self,object):
+        self.father = object
+
+    def get(self,inputs):
+        tower1 = Conv2D(filters=self.filters,kernel_size=(1,1),padding="same") (inputs)
+
+        tower2 = Conv2D(filters=self.filters,kernel_size=(1,1),padding="same") (inputs)
+        tower2 = Conv2D(filters=self.filters,kernel_size=(3,3),padding="same") (tower2)
+
+        tower3 = Conv2D(filters=self.filters,kernel_size=(1,1),padding="same") (inputs)
+        tower3 = Conv2D(filters=self.filters,kernel_size=(5,5),padding="same") (tower3)
+
+        tower4 = MaxPooling2D(pool_size=(3,3), strides=(1,1), padding='same')(inputs)
+        tower4 = Conv2D(filters=self.filters,kernel_size=(1,1),padding="same") (tower4)
+
+        return concatenate([tower1,tower2,tower3,tower4],axis=3)
 
 
 
@@ -123,72 +202,17 @@ def ConnectBlock(input=None,transformers=None,blocks=None):
     previous_block = None
     for block in blocks:
 
-        #DenseBlock ----------------------------------------------------------
+
         if type(block) == DenseBlock:
             #Check need of flatten layers to maker the junction between conv and dense blocks
-            if (type(previous_block) == ConvBlock) or (type(previous_block) == InceptionBlock):
+            if (type(previous_block) == ConvBlock) or (type(previous_block) == InceptionBlock) or (type(previous_block) == NaiveInceptionBlock) or (type(previous_block) == InceptionBlockDimReduce):
                 x = Flatten() (previous)
                 previous = x
-            x = Dense(block.units) (previous)
-            if block.activation is not None:
-                x = Activation(block.activation) (x)
-            if block.dropout is not None:
-                x = Dropout(block.dropout) (x)
-            if block.bn is not None:
-                x = BatchNormalization() (x)
-            previous = x
-            previous_block = block
-        # --------------------------------------------------------------------
+            # -----------------------------------------------------------------
 
-        #ConvBlock -----------------------------------------------------------
-        if type(block) == ConvBlock:
-            x = Conv2D(filters=block.filters,
-                       kernel_size=block.kernel_size,
-                       strides=block.strides,
-                       padding=block.padding,
-            ) (previous)
-            if block.activation is not None:
-                x = Activation(block.activation) (x)
-            if block.dropout is not None:
-                x = Dropout(block.dropout) (x)
-            if block.pooling is not None:
-                x = MaxPooling2D(pool_size=block.pooling) (x)
-            if block.bn is not None:
-                x = BatchNormalization() (x)
-            previous = x
-            previous_block = block
-        # --------------------------------------------------------------------
-
-        #InceptionBlock ------------------------------------------------------
-        if type(block) == InceptionBlock:
-
-            #tower1
-            tower1 = Conv2D(filters=block.filters,kernel_size=(1,1),padding="same") (previous)
-            if block.activation is not None:
-                tower1 = Activation(block.activation) (tower1)
-            tower1 = Conv2D(filters=block.filters,kernel_size=(3,3),padding="same") (tower1)
-            if block.activation is not None:
-                tower1 = Activation(block.activation) (tower1)
-
-            #tower2
-            tower2 = Conv2D(filters=block.filters,kernel_size=(1,1),padding="same") (previous)
-            if block.activation is not None:
-                tower2 = Activation(block.activation) (tower2)
-            tower2 = Conv2D(filters=block.filters,kernel_size=(5,5),padding="same") (tower2)
-            if block.activation is not None:
-                tower2 = Activation(block.activation) (tower2)
-
-
-            #tower3
-            tower3 = MaxPooling2D(pool_size=(3,3), strides=(1,1), padding='same')(previous)
-            tower3 = Conv2D(filters=block.filters,kernel_size=(1,1),padding="same") (tower3)
-            if block.activation is not None:
-                tower3 = Activation(block.activation) (tower3)
-
-            x = concatenate([tower1,tower2,tower3],axis=3)
-            previous = x
-            previous_block = block
-
+        x = block.get(previous)
+        previous = x
+        previous_block = block
 
 
     outputs = SmartClassificationRegressionOutput(input0,x)

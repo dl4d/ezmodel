@@ -1,14 +1,20 @@
 from keras.models import *
 from keras.layers import *
-from keras.applications.mobilenet import MobileNet
-from keras.applications.vgg16 import VGG16
-from keras.applications.vgg19 import VGG19
-from keras.applications.xception import Xception
-from keras.applications.densenet import DenseNet121,DenseNet169,DenseNet201
-from keras.applications.inception_resnet_v2 import InceptionResNetV2
-from keras.applications.inception_v3 import InceptionV3
-from keras.applications.nasnet import NASNetLarge,NASNetMobile
-from keras.applications.resnet50 import ResNet50
+from keras.applications import *
+# from keras.applications.vgg16 import VGG16
+# from keras.applications.vgg19 import VGG19
+# from keras.applications.xception import Xception
+# from keras.applications.mobilenet import MobileNet
+# from keras.applications.resnet50 import ResNet50
+# from keras.applications.inception_v3 import InceptionV3
+
+# from keras.applications.densenet import DenseNet121,DenseNet169,DenseNet201
+# from keras.applications.inception_resnet_v2 import InceptionResNetV2
+# from keras.applications.inception_v3 import InceptionV3
+# from keras.applications.nasnet import NASNetLarge,NASNetMobile
+
+
+
 import os
 import copy
 
@@ -36,14 +42,27 @@ def SmartClassificationRegressionOutput(input,x0):
         x = Activation("softmax") (x)
         return x
 
+def SmartClassificationRegressionOutputSequential(input):
+    if len(input.y.shape)==1:
+        if len(np.unique(input.y))==2: #probably classification with binary class
+            x = Dense(1,activation="sigmoid")
+            return x
+        else: #probably classification multiclass  or regression
+            x = Dense(1,activation="linear")
+            return x
+
+    if len(input.y.shape)==2: #probably classification with multiclass
+        x = Dense(input.y.shape[1],activation="softmax")
+        return x
+
 #Load a pretrained Network
 def Pretrained(input=None,path=None,include_top=False,transfer=False,frozen=False):
     if path.lower()=="mobilenet":
-        pretrained = MobileNet(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
+        pretrained = mobilenet.MobileNet(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
     elif path.lower()=="vgg16":
-        pretrained = VGG16(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
+        pretrained = vgg16.VGG16(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
     elif path.lower()=="vgg19":
-        pretrained = VGG19(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
+        pretrained = vgg19.VGG19(include_top=include_top, weights='imagenet', input_shape=input.X.shape[1:])
     else:
         #check local model
         if os.path.isfile(path+".h5"):
@@ -257,6 +276,257 @@ def SmallAlexNet(input=None,transformers=None,parameters=None):
     x = Activation('relu') (x)
     x = Dropout(0.4) (x)
     x = BatchNormalization() (x)
+
+    outputs = SmartClassificationRegressionOutput(input0,x)
+
+    model = Model(inputs=inputs, outputs=outputs)
+    return model
+
+def InceptionV3(input=None,transformers=None,parameters=None):
+
+    #Temporary transform data
+    if transformers is not None:
+        input0 = copy.deepcopy(input)
+        input0.preprocess(X=transformers[0],y=transformers[1])
+    else:
+        input0 = input
+
+    inputs = SmartInput(input0)
+    model = Sequential()
+    bottom = inception_v3.InceptionV3(input_tensor=inputs,weights=None,include_top=False,pooling="avg")
+    model.add(bottom)
+    if parameters is not None:
+        if "hidden" in parameters:
+            for hidden in parameters["hidden"]:
+                model.add(Dense(hidden))
+                if "activation" in parameters:
+                    model.add(Activation(parameters["activation"]))
+                if "dropout" in parameters:
+                    model.add(Dropout(parameters["dropout"]))
+    model.add(SmartClassificationRegressionOutputSequential(input0))
+    return model
+
+
+
+def MobileNet(input=None,transformers=None,parameters=None):
+
+    #Temporary transform data
+    if transformers is not None:
+        input0 = copy.deepcopy(input)
+        input0.preprocess(X=transformers[0],y=transformers[1])
+    else:
+        input0 = input
+
+    inputs = SmartInput(input0)
+    model = Sequential()
+    bottom = mobilenet.MobileNet(input_tensor=inputs,weights=None,include_top=False,pooling="avg")
+    model.add(bottom)
+
+    alpha = 1.0
+    dropout = 1e-3
+    if len(input0.y.shape)==1:
+        raise Exception("ezmodel.eznetwork.MobileNet(): 'y' must be transformed into to categorical to work with Mobilenet!")
+    else :
+        classes = input0.y.shape[1]
+    shape = (1, 1, int(1024 * alpha))
+
+    model.add(Reshape(shape, name='reshape_1'))
+    model.add(Dropout(dropout, name='dropout'))
+    model.add(Conv2D(classes, (1, 1),padding='same',name='conv_preds'))
+    model.add(Activation('softmax', name='act_softmax'))
+    model.add(Reshape((classes,)))
+
+    return model
+
+def Xception(input=None,transformers=None,parameters=None):
+
+    #Temporary transform data
+    if transformers is not None:
+        input0 = copy.deepcopy(input)
+        input0.preprocess(X=transformers[0],y=transformers[1])
+    else:
+        input0 = input
+
+    inputs = SmartInput(input0)
+    model = Sequential()
+    bottom = xception.Xception(input_tensor=inputs,weights=None,include_top=False,pooling="avg")
+    model.add(bottom)
+    if parameters is not None:
+        if "hidden" in parameters:
+            for hidden in parameters["hidden"]:
+                model.add(Dense(hidden))
+                if "activation" in parameters:
+                    model.add(Activation(parameters["activation"]))
+                if "dropout" in parameters:
+                    model.add(Dropout(parameters["dropout"]))
+    model.add(SmartClassificationRegressionOutputSequential(input0))
+
+    return model
+
+
+
+def VGG16(input=None,transformers=None,parameters=None):
+
+    #Temporary transform data
+    if transformers is not None:
+        input0 = copy.deepcopy(input)
+        input0.preprocess(X=transformers[0],y=transformers[1])
+    else:
+        input0 = input
+
+    inputs = SmartInput(input0)
+    model = Sequential()
+    bottom = vgg16.VGG16(input_tensor=inputs,weights=None,include_top=False,pooling="avg")
+    model.add(bottom)
+    if parameters is not None:
+        if "hidden" in parameters:
+            for hidden in parameters["hidden"]:
+                model.add(Dense(hidden))
+                if "activation" in parameters:
+                    model.add(Activation(parameters["activation"]))
+                if "dropout" in parameters:
+                    model.add(Dropout(parameters["dropout"]))
+    else:
+        model.add(Dense(4096,activation="relu"))
+        model.add(Dense(4096,activation="relu"))
+    model.add(SmartClassificationRegressionOutputSequential(input0))
+
+    return model
+
+
+def VGG19(input=None,transformers=None,parameters=None):
+    #Temporary transform data
+    if transformers is not None:
+        input0 = copy.deepcopy(input)
+        input0.preprocess(X=transformers[0],y=transformers[1])
+    else:
+        input0 = input
+
+    inputs = SmartInput(input0)
+    model = Sequential()
+    bottom = vgg19.VGG19(input_tensor=inputs,weights=None,include_top=False,pooling="avg")
+    model.add(bottom)
+    if parameters is not None:
+        if "hidden" in parameters:
+            for hidden in parameters["hidden"]:
+                model.add(Dense(hidden))
+                if "activation" in parameters:
+                    model.add(Activation(parameters["activation"]))
+                if "dropout" in parameters:
+                    model.add(Dropout(parameters["dropout"]))
+    else:
+        model.add(Dense(4096,activation="relu"))
+        model.add(Dense(4096,activation="relu"))
+    model.add(SmartClassificationRegressionOutputSequential(input0))
+
+    return model
+
+
+def identity_block(input_tensor, kernel_size, filters, stage, block):
+    """The identity block is the block that has no conv layer at shortcut.
+    # Arguments
+        input_tensor: input tensor
+        kernel_size: defualt 3, the kernel size of middle conv layer at main path
+        filters: list of integers, the filterss of 3 conv layer at main path
+        stage: integer, current stage label, used for generating layer names
+        block: 'a','b'..., current block label, used for generating layer names
+    # Returns
+        Output tensor for the block.
+    """
+    filters1, filters2, filters3 = filters
+    conv_name_base = 'res' + str(stage) + block + '_branch'
+    bn_name_base = 'bn' + str(stage) + block + '_branch'
+
+    x = Conv2D(filters1, (1, 1), name=conv_name_base + '2a')(input_tensor)
+    x = BatchNormalization(name=bn_name_base + '2a')(x)
+    x = Activation('relu')(x)
+
+    x = Conv2D(filters2, kernel_size,padding='same', name=conv_name_base + '2b')(x)
+    x = BatchNormalization(name=bn_name_base + '2b')(x)
+    x = Activation('relu')(x)
+
+    x = Conv2D(filters3, (1, 1), name=conv_name_base + '2c')(x)
+    x = BatchNormalization(name=bn_name_base + '2c')(x)
+
+    x = add([x, input_tensor])
+    x = Activation('relu')(x)
+    return x
+
+def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2)):
+    """conv_block is the block that has a conv layer at shortcut
+    # Arguments
+        input_tensor: input tensor
+        kernel_size: defualt 3, the kernel size of middle conv layer at main path
+        filters: list of integers, the filterss of 3 conv layer at main path
+        stage: integer, current stage label, used for generating layer names
+        block: 'a','b'..., current block label, used for generating layer names
+    # Returns
+        Output tensor for the block.
+    Note that from stage 3, the first conv layer at main path is with strides=(2,2)
+    And the shortcut should have strides=(2,2) as well
+    """
+    filters1, filters2, filters3 = filters
+    conv_name_base = 'res' + str(stage) + block + '_branch'
+    bn_name_base = 'bn' + str(stage) + block + '_branch'
+
+    x = Conv2D(filters1, (1, 1), strides=strides,name=conv_name_base + '2a')(input_tensor)
+    x = BatchNormalization( name=bn_name_base + '2a')(x)
+    x = Activation('relu')(x)
+
+    x = Conv2D(filters2, kernel_size, padding='same',name=conv_name_base + '2b')(x)
+    x = BatchNormalization(name=bn_name_base + '2b')(x)
+    x = Activation('relu')(x)
+
+    x = Conv2D(filters3, (1, 1), name=conv_name_base + '2c')(x)
+    x = BatchNormalization(name=bn_name_base + '2c')(x)
+
+    shortcut = Conv2D(filters3, (1, 1), strides=strides,name=conv_name_base + '1')(input_tensor)
+    shortcut = BatchNormalization(name=bn_name_base + '1')(shortcut)
+
+    x = add([x, shortcut])
+    x = Activation('relu')(x)
+    return x
+
+def ResNet50(input=None,transformers=None,parameters=None):
+
+    #Temporary transform data
+    if transformers is not None:
+        input0 = copy.deepcopy(input)
+        input0.preprocess(X=transformers[0],y=transformers[1])
+    else:
+        input0 = input
+
+    inputs = SmartInput(input0)
+
+    x = ZeroPadding2D((3, 3))(inputs)
+    print(x.get_shape())
+    x = Conv2D(64, (7, 7), strides=(2, 2), name='conv1')(x)
+    x = BatchNormalization(name='bn_conv1')(x)
+    x = Activation('relu')(x)
+    x = MaxPooling2D((3, 3), strides=(2, 2))(x)
+    print(x.get_shape())
+    x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1))
+    x = identity_block(x, 3, [64, 64, 256], stage=2, block='b')
+    x = identity_block(x, 3, [64, 64, 256], stage=2, block='c')
+    print(x.get_shape())
+    x = conv_block(x, 3, [128, 128, 512], stage=3, block='a')
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='b')
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='c')
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='d')
+    print(x.get_shape())
+    x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a')
+    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='b')
+    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='c')
+    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='d')
+    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='e')
+    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='f')
+    print(x.get_shape())
+    x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a')
+    x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b')
+    x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c')
+    #print(x.get_shape())
+    #x = AveragePooling2D((7, 7), name='avg_pool')(x)
+    x = GlobalAveragePooling2D()(x)
 
     outputs = SmartClassificationRegressionOutput(input0,x)
 
