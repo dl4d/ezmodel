@@ -39,6 +39,33 @@ def split(data,size=0.2,random_state=42):
 
     return train,test
 
+
+def keep(data,classes=None):
+
+    if classes is None:
+        raise Exception('[Fail] ezutils.keep(): Please pass a set of class name as parameters !')
+
+    if not hasattr(data,"synsets"):
+        raise Exception('[Fail] ezutils.keep(): Please pass dataset containing synsets !')
+
+    newdict=dict()
+    i=0
+    indices =[]
+    for c in classes:
+        class0 = [key  for (key, value) in data.synsets.items() if value == c]
+        indix = np.where(data.y==class0[0])[0]
+        indices = np.concatenate((indices,indix))
+        indices = indices.astype('int64')
+        data.y[indix] = i
+        newdict[i] = data.synsets[class0[0]]
+        i=i+1
+    data.X = data.X[indices]
+    data.y = data.y[indices]
+    data.synsets = newdict
+    return data
+
+
+
 def show_images(data,n=16):
 
     #Checkers
@@ -59,7 +86,13 @@ def show_images(data,n=16):
         if (data.X[r[i]].shape[2])==1:
             plt.imshow(np.squeeze(data.X[r[i]]),cmap="gray")
         else:
-            plt.imshow(data.X[r[i]])
+            #RGB data
+            if data.X[r[i]].dtype == "float32" or data.X[r[i]].dtype == "float64":
+                plt.imshow(data.X[r[i]].astype('int32'))
+            elif data.X[r[i]].dtype == "int32" or data.X[r[i]].dtype == "int64":
+                plt.imshow(data.X[r[i]])
+            else:
+                raise Exception('[Fail] ezutils.show_images(): only float32, float64, int32, int64 are supported type ')
 
         if data.synsets is not None:
             if len(data.y.shape)==1:

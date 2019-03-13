@@ -12,3 +12,6 @@
 12. Take metric/loss into learning Graph
 13. Replace 0/1/2 .. into the confusion matrix in case we have a synset into the ezset
 14. ezblocks : Code blocks again using __call__ to be able to build a network from ezblock using functionnal way as Keras do
+15. ResNet50 => revoir le code car changement de version de keras
+16. Check overwriting variable into JupyterNotebook -> should conflict transformers ....
+17. Manage Tensorflow Graph Session (check pw2_cnn.ipynb on Colab to get the piece of code to clear keras session)

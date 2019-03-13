@@ -36,41 +36,110 @@ class ezset:
             return
         if "path" not in parameters:
             raise Exception("ezset.init() : Please provide at least a path into parameters")
-        else:
-            self.params = parameters
-            #Images classification from directory
-            if (os.path.isdir(self.params["path"])) and ("path_mask" not in self.params):
-                self.import_classification_images(parameters)
-                #self.type = "classification"
-                return
-            #Images segmentation from directory
-            if (os.path.isdir(self.params["path"])) and (os.path.isdir(self.params["path_mask"])):
+
+        self.params = parameters
+
+        if (os.path.isdir(self.params["path"])):
+            if "path_mask" not in self.params:
+                if "index" not in self.params:
+                    #Images classification from directory
+                    self.import_classification_images(parameters)
+                    return
+                else:
+                    #Image classification from directory + Index file
+                    self.import_classification_images_from_indexes(parameters)
+            else:
+                #Image segmentation from images/ masks/ directories
                 self.import_segmentation_images(parameters)
-                #self.type = "segmentation"
+
+        if (os.path.isfile(self.params["path"])):
+
+            extension = os.path.splitext(self.params["path"])[1]
+            if extension == ".csv":
+                #Table Classification or regression
+                self.import_table(parameters)
                 return
-
-
-            if (os.path.isfile(self.params["path"])):
-
-                extension = os.path.splitext(self.params["path"])[1]
-                if extension == ".csv":
-                    #Table Classification or regression
-                    self.import_table(parameters)
-                    return
-                if extension == ".npz":
-                    self.from_npz(self.params)
-                    return
-                raise Exception('File extension/type not recognized ! Should be "csv" or "npz" !')
+            if extension == ".npz":
+                self.from_npz(self.params)
                 return
-
-            #Image classification from directory and csv index file
-            if (os.path.isdir(self.params["path"])) and (os.path.isfile(self.params["path_index"])):
-                self.import_classification_images_from_indexes()
-                #self.type="classification"
+            raise Exception('File extension/type not recognized ! Should be "csv" or "npz" !')
+            return
 
 
-    def import_classification_images_from_index(self,parameters):
-        print('TODO: import_classification_images_from_index()')
+
+    def import_classification_images_from_indexes(self,parameters):
+
+        #Read the index and find a delimiter
+        found = False
+        for delim in [",",";"," ","\t"]:
+            table = pd.read_csv(parameters["index"],delimiter=delim)
+            if table.columns.shape[0] != 1:
+                print("[Notice] Found a delimiter !")
+                found = True
+                break
+        if not found:
+            raise Exception("[Fail] ezset.import_classification_images_from_indexes() : No delimiter suitable for your table have been automatically found. Please provide one using 'table.delim' parameter.")
+
+        if "image.path.column" not in parameters:
+            raise Exception("[Fail] ezset.import_classification_images_from_indexes() : No 'image.path.column' has been defined into parameters. Please define it !")
+
+        if "target.column" not in parameters:
+            raise Exception("[Fail] ezset.import_classification_images_from_indexes() : No 'target.column' has been defined into parameters. Please define it !")
+
+        images =[]
+        image_paths=[]
+        labels =[]
+        synsets={}
+
+        #Images from index file
+        print ('[X] Loading Images:', parameters["path"])
+        print ('--- from index file:', parameters["path"])
+        # for i in range(table.shape[0]):
+        #     curimg = os.path.join(parameters["path"], table.loc[i,parameters["image.path.column"]])
+        #     print(curimg)
+
+        #Labels
+        l = table[parameters["target.column"]]
+        if l.dtype == "object":
+            encoder = LabelEncoder()
+            l = encoder.fit_transform(np.squeeze(l))
+            self.synsets = {v: k for v, k in enumerate(encoder.classes_)}
+            print("--- 'synsets' have been created into current ezset object.")
+
+        #Images
+        i=0
+        for filename in sorted(os.listdir(parameters["path"])):
+            if (i%100)==0:
+                print(str(i) + "/" + str(len(l)))
+
+            curimg = os.path.join(parameters["path"], filename)
+            #print(filename)
+            img = Image.open(curimg)
+            imgcopy = img.copy()
+            images.append(imgcopy)
+            image_paths.append(curimg)
+            img.close()
+            i=i+1
+
+            search = os.path.splitext(filename)[0]
+            w = np.where(table[parameters["image.path.column"]]==search)[0]
+            labels.append(l[w])
+
+        tot=i
+        print ('--- Total images :', str(tot))
+
+        self.images = images
+        self.image_paths = image_paths
+        self.index = parameters["index"]
+        self.labels = labels
+
+        print("\n")
+
+        if "resize" in self.params:
+          self.images_to_keras(self.params["resize"])
+        else:
+          self.images_to_keras()
+
         return
 
     #SEGMENTATION IMAGES from DIRECTORY
@@ -95,6 +164,7 @@ class ezset:
             img = Image.open(curimg)
             images.append(img)
             image_paths.append(curimg)
+            img.close()
             i=i+1
         tot=i
         print ('--- Total images :', str(tot))
@@ -109,6 +179,7 @@ class ezset:
             img = Image.open(curimg)
             masks.append(img)
             mask_paths.append(curimg)
+            img.close()
             i=i+1
         tot=i
         print ('--- Total images :', str(tot))
@@ -223,6 +294,7 @@ class ezset:
                 images.append(img)
                 labels.append(k)
                 image_paths.append(curimg)
+                img.close()
                 i=i+1
             #synsets.append(subdir)
             synsets[k]=subdir
@@ -328,12 +400,16 @@ class ezset:
             self.y = data[parameters["y.key"]].astype('float32')
         else:
             self.y = data["y"].astype('float32')
+        #squeeze because npz add a singleton dimension once saved
+        if len(self.y.shape)==2:
+            if self.y.shape[1]==1:
+                self.y = np.squeeze(self.y)
+
         if "synsets.key" in parameters:
-            self.synsets = data[parameters["synsets.key"]]
+            self.synsets = data[parameters["synsets.key"]][()]
         else:
             if "synsets" in data:
-                self.synsets = data["synsets"]
-
+                self.synsets = data["synsets"][()]
         if "name" in parameters:
             self.name = parameters["name"]
         else:
@@ -341,6 +417,21 @@ class ezset:
         print("[X] Loading from : " + parameters["path"])
         print ("--- 'X' and 'y' tensors have been created into current ezset object.")
         print("\n")
+
+    def to_npz(self,filename):
+
+        print("[X] Saving ezset to npz : ", filename)
+        if hasattr(self,"synsets"):
+            if hasattr(self,"name"):
+                np.savez(filename,X=self.X,y=self.y,synsets=self.synsets,name=self.name)
+            else:
+                np.savez(filename,X=self.X,y=self.y,synsets=self.synsets)
+        else:
+            if hasattr(self,"name"):
+                np.savez(filename,X=self.X,y=self.y,name=self.name)
+            else:
+                np.savez(filename,X=self.X,y=self.y)
+        print('--- Done !')
 
     def transform(self,X=None,y=None):
         if X is not None:
