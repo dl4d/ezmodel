@@ -52,3 +52,4 @@ parameters = {
 ez.train(parameters)
 # Evaluation ------------------------------------------------------------------
 #ez.evaluate()
+ez.ROC()

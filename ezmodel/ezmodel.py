@@ -270,12 +270,12 @@ class ezmodel:
     def ROC(self):
 
         print("WARNING: ezmodel.ROC() works only with y as 'categorical' transformer.")
-        p = self.predict(self.test.X)
-        fpr_keras, tpr_keras, thresholds_keras = roc_curve(self.test.y, p.argmax(axis=1))
+        p = self.predict()
+        fpr_keras, tpr_keras, thresholds_keras = roc_curve(self.data_test.y, p.argmax(axis=1))
         auc_keras = auc(fpr_keras, tpr_keras)
         plt.figure(1)
         plt.plot([0, 1], [0, 1], 'k--')
-        plt.plot(fpr_keras, tpr_keras, label='Model (area = {:.3f})'.format(auc_keras))
+        plt.plot(fpr_keras, tpr_keras, label='Model (AUC = {:.3f})'.format(auc_keras))
         plt.xlabel('False positive rate')
         plt.ylabel('True positive rate')
         plt.title('ROC curve')

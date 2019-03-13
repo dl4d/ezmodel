@@ -48,9 +48,11 @@ class ezset:
                 else:
                     #Image classification from directory + Index file
                     self.import_classification_images_from_indexes(parameters)
+                    return
             else:
                 #Image segmentation from images/ masks/ directories
                 self.import_segmentation_images(parameters)
+                return
 
         if (os.path.isfile(self.params["path"])):
 
@@ -64,6 +66,8 @@ class ezset:
                 return
             raise Exception('File extension/type not recognized ! Should be "csv" or "npz" !')
             return
+
+        raise Exception('[Fail]: Path Not found !')
 
 
 
