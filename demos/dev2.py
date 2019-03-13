@@ -47,9 +47,11 @@ ez = ezmodel(
 )
 # Training --------------------------------------------------------------------
 parameters = {
-    "epochs" : 5
+    "epochs" : 10
 }
 ez.train(parameters)
 # Evaluation ------------------------------------------------------------------
 #ez.evaluate()
-ez.ROC()
+#ez.ROC()
+ez.PR()
+#ez.confusion_matrix()

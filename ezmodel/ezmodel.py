@@ -8,8 +8,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import keras
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import roc_curve
-from sklearn.metrics import auc
+from sklearn.metrics import roc_curve,auc,precision_score,recall_score,precision_recall_curve,f1_score,average_precision_score
 
 import copy
 from keras.preprocessing.image import ImageDataGenerator
@@ -269,18 +268,46 @@ class ezmodel:
 
     def ROC(self):
 
-        print("WARNING: ezmodel.ROC() works only with y as 'categorical' transformer.")
+        print("[Notice]: ezmodel.ROC() works only with y as 'categorical' transformer.")
         p = self.predict()
         fpr_keras, tpr_keras, thresholds_keras = roc_curve(self.data_test.y, p.argmax(axis=1))
         auc_keras = auc(fpr_keras, tpr_keras)
         plt.figure(1)
         plt.plot([0, 1], [0, 1], 'k--')
         plt.plot(fpr_keras, tpr_keras, label='Model (AUC = {:.3f})'.format(auc_keras))
-        plt.xlabel('False positive rate')
-        plt.ylabel('True positive rate')
+        plt.xlabel('Specificity (FP rate)')
+        plt.ylabel('Sensitivity (TP rate)')
         plt.title('ROC curve')
         plt.legend(loc='best')
         plt.show()
+
+    def PR(self):
+        print("[Notice]: ezmodel.PR() works only with y as 'categorical' transformer.")
+        print("[Warning]: ezmodel.PR() Check some examples to understand more again.")
+        probs = self.predict()
+        yhat  = probs.argmax(axis=1)
+        proba=[]
+        for i in range(probs.shape[0]):
+            proba.append(probs[i,yhat[i]])
+
+
+        #precision, recall, thresholds = precision_recall_curve(self.data_test.y, probs)
+        precision, recall, thresholds = precision_recall_curve(self.data_test.y, proba)
+
+        f1 = f1_score(self.data_test.y, yhat)
+        auc0 = auc(recall, precision)
+        #ap = average_precision_score(self.data_test.y, probs)
+        ap = average_precision_score(self.data_test.y, proba)
+        print('f1=%.3f auc=%.3f ap=%.3f' % (f1, auc0, ap))
+        plt.figure(1)
+        plt.plot([0, 1], [0.5, 0.5], 'k--', label="No skill model")
+        plt.plot(recall, precision, marker='.', label="Model (AUC = {:.3f}, F1 = {:.3f}, AvgPrec={:.3f})".format(auc0,f1,ap))
+        plt.xlabel('Recall')
+        plt.ylabel('Precision')
+        plt.title('PR curve (Warning not sure of the outcome)')
+        plt.legend(loc='best')
+        plt.show()
+
 
 
 
@@ -305,9 +332,14 @@ class ezmodel:
         if self.data_test.synsets is not None:
             m =  pd.crosstab(
                      #pd.Series(self.trainer.y_valid.argmax(axis=1), name='Validation'),
-                     pd.Series(test.y.argmax(axis=1), name='Validation'),
+                     pd.Series(test.y.argmax(axis=1), name='Values'),
                      pd.Series(p.argmax(axis=1), name='Prediction')
                      )
+            #Ajout
+            #m.index = self.data_test.synsets
+            #m.columns = self.data_test.synsets
+            #
+
             if not self.is_kernel():
                 print(m)
             else:
