@@ -350,7 +350,6 @@ class ezmodel:
 
 
 
-
     def is_kernel(self):
         if 'IPython' not in sys.modules:
             # IPython hasn't been imported, definitely not
