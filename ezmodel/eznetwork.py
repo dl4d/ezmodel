@@ -91,7 +91,7 @@ def Connect(bottom,top):
     return model
 
 
-# def TransferNetwork(input=None,transformers=None,from=None,top=None):
+# def Transfer(input=None,transformers=None,from=None,top=None):
 #     bottom = Pretrained(input=train,path=from,frozen=True)
 #     mlp = MLP(input=train,transformers=transformers,parameters=top,pretrained=bottom)
 #     return Connect(bottom,mlp)
