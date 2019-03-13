@@ -8,6 +8,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import keras
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_curve
+from sklearn.metrics import auc
+
 import copy
 from keras.preprocessing.image import ImageDataGenerator
 import numpy as np
@@ -263,6 +266,23 @@ class ezmodel:
         plt.legend()
 
         plt.show()
+
+    def ROC(self):
+
+        print("WARNING: ezmodel.ROC() works only with y as 'categorical' transformer.")
+        p = self.predict(self.test.X)
+        fpr_keras, tpr_keras, thresholds_keras = roc_curve(self.test.y, p.argmax(axis=1))
+        auc_keras = auc(fpr_keras, tpr_keras)
+        plt.figure(1)
+        plt.plot([0, 1], [0, 1], 'k--')
+        plt.plot(fpr_keras, tpr_keras, label='Model (area = {:.3f})'.format(auc_keras))
+        plt.xlabel('False positive rate')
+        plt.ylabel('True positive rate')
+        plt.title('ROC curve')
+        plt.legend(loc='best')
+        plt.show()
+
+
 
     def is_kernel(self):
         if 'IPython' not in sys.modules:
