@@ -8,7 +8,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import keras
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import roc_curve,auc,precision_score,recall_score,precision_recall_curve,f1_score,average_precision_score
+from sklearn.metrics import roc_curve,auc,roc_auc_score,precision_score,recall_score,precision_recall_curve,f1_score,average_precision_score
 
 import copy
 from keras.preprocessing.image import ImageDataGenerator
@@ -266,38 +266,78 @@ class ezmodel:
 
         plt.show()
 
+    # def ROC(self):
+    #
+    #     print("[Notice]: ezmodel.ROC() works only with y as 'categorical' transformer.")
+    #     p = self.predict()
+    #     specificity, sensitivity, thresholds_keras = roc_curve(self.data_test.y, p.argmax(axis=1))
+    #     auc_keras = auc(specificity, sensitivity)
+    #     plt.figure(1)
+    #     plt.plot([0, 1], [0, 1], 'k--')
+    #     plt.plot(specificity, sensitivity, label='Model (AUC = {:.3f})'.format(auc_keras))
+    #     plt.xlabel('Specificity (FP rate)')
+    #     plt.ylabel('Sensitivity (TP rate)')
+    #     plt.title('ROC curve')
+    #     plt.legend(loc='best')
+    #     plt.show()
+
     def ROC(self):
 
         print("[Notice]: ezmodel.ROC() works only with y as 'categorical' transformer.")
-        p = self.predict()
-        specificity, sensitivity, thresholds_keras = roc_curve(self.data_test.y, p.argmax(axis=1))
-        auc_keras = auc(specificity, sensitivity)
+        prob = self.predict()
+        probs = prob[:,1]
+        auc = roc_auc_score(self.data_test.y,probs)
+        specificity, sensitivity, thresholds = roc_curve(self.data_test.y, probs)
         plt.figure(1)
         plt.plot([0, 1], [0, 1], 'k--')
-        plt.plot(specificity, sensitivity, label='Model (AUC = {:.3f})'.format(auc_keras))
+        plt.plot(specificity, sensitivity, label='Model (AUC = {:.3f})'.format(auc))
         plt.xlabel('Specificity (FP rate)')
         plt.ylabel('Sensitivity (TP rate)')
         plt.title('ROC curve')
         plt.legend(loc='best')
         plt.show()
 
+
+    # def PR(self):
+    #     print("[Notice]: ezmodel.PR() works only with y as 'categorical' transformer.")
+    #     print("[Warning]: ezmodel.PR() Check some examples to understand more again.")
+    #     probs = self.predict()
+    #     yhat  = probs.argmax(axis=1)
+    #     proba=[]
+    #     for i in range(probs.shape[0]):
+    #         proba.append(probs[i,yhat[i]])
+    #
+    #
+    #     #precision, recall, thresholds = precision_recall_curve(self.data_test.y, probs)
+    #     precision, recall, thresholds = precision_recall_curve(self.data_test.y, proba)
+    #
+    #     f1 = f1_score(self.data_test.y, yhat)
+    #     auc0 = auc(recall, precision)
+    #     #ap = average_precision_score(self.data_test.y, probs)
+    #     ap = average_precision_score(self.data_test.y, proba)
+    #     print('f1=%.3f auc=%.3f ap=%.3f' % (f1, auc0, ap))
+    #     plt.figure(1)
+    #     plt.plot([0, 1], [0.5, 0.5], 'k--', label="No skill model")
+    #     plt.plot(recall, precision, marker='.', label="Model (AUC = {:.3f}, F1 = {:.3f}, AvgPrec={:.3f})".format(auc0,f1,ap))
+    #     plt.xlabel('Recall')
+    #     plt.ylabel('Precision')
+    #     plt.title('PR curve (Warning not sure of the outcome)')
+    #     plt.legend(loc='best')
+    #     plt.show()
+
     def PR(self):
         print("[Notice]: ezmodel.PR() works only with y as 'categorical' transformer.")
         print("[Warning]: ezmodel.PR() Check some examples to understand more again.")
-        probs = self.predict()
-        yhat  = probs.argmax(axis=1)
-        proba=[]
-        for i in range(probs.shape[0]):
-            proba.append(probs[i,yhat[i]])
 
+        prob = self.predict()
+        probs = prob[:,1]
+        yhat  = prob.argmax(axis=1)
 
-        #precision, recall, thresholds = precision_recall_curve(self.data_test.y, probs)
-        precision, recall, thresholds = precision_recall_curve(self.data_test.y, proba)
+        precision, recall, thresholds = precision_recall_curve(self.data_test.y, probs)
 
         f1 = f1_score(self.data_test.y, yhat)
         auc0 = auc(recall, precision)
-        #ap = average_precision_score(self.data_test.y, probs)
-        ap = average_precision_score(self.data_test.y, proba)
+        ap = average_precision_score(self.data_test.y, probs)
         print('f1=%.3f auc=%.3f ap=%.3f' % (f1, auc0, ap))
         plt.figure(1)
         plt.plot([0, 1], [0.5, 0.5], 'k--', label="No skill model")

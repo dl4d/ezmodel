@@ -14,7 +14,7 @@ from ezmodel.ezset import ezset
 from ezmodel.ezmodel import ezmodel
 
 from ezmodel.ezutils import split
-from ezmodel.eznetwork import Pretrained,MLP,Connect
+from ezmodel.eznetwork import LeNet5
 import keras
 
 
@@ -30,48 +30,29 @@ data = ezset(parameters)
 train,test  = split(data,size=0.2)
 #Transform
 transformers = train.transform(X="standard",y="categorical")
-# # [EZNETWORK]  ----------------------------------------------------------------
+# [EZNETWORK]  ----------------------------------------------------------------
+net = LeNet5(input=train,transformers=transformers)
+# [Keras Optimizer, Loss & Metrics]  ------------------------------------------
+optimizer = {
+    "optimizer" : keras.optimizers.Adam(lr=1e-4),
+    "loss" : keras.losses.categorical_crossentropy,
+    "metrics" : [keras.metrics.categorical_accuracy]
+}
+# [EZMODEL]  ------------------------------------------------------------------
+ez = ezmodel(
+    train = train,
+    test  = test,
+    network = net,
+    optimizer = optimizer,
+    transformers = transformers
+)
+# Training --------------------------------------------------------------------
 parameters = {
-    "pretrained": "vgg16",
-    "frozen"    : True,
-    "hidden"    : [100,50],
-    "activation": "relu"
+    "epochs" : 2
 }
-net = Transfer(input=train,transformers=transformers,parameters=parameters)
-bottom = Pretrained(input=train,path="vgg16",frozen=True)
-top={
-    "hidden": [100,50],
-    "activation": "relu"
-}
-mlp = MLP(input=train,transformers=transformers,parameters=top,pretrained=bottom)
-net = Connect(bottom,mlp)
-
-net.summary()
-
-
-
-# net = LeNet5(input=train,transformers=transformers)
-# # [Keras Optimizer, Loss & Metrics]  ------------------------------------------
-# optimizer = {
-#     "optimizer" : keras.optimizers.Adam(lr=1e-4),
-#     "loss" : keras.losses.categorical_crossentropy,
-#     "metrics" : [keras.metrics.categorical_accuracy]
-# }
-# # [EZMODEL]  ------------------------------------------------------------------
-# ez = ezmodel(
-#     train = train,
-#     test  = test,
-#     network = net,
-#     optimizer = optimizer,
-#     transformers = transformers
-# )
-# # Training --------------------------------------------------------------------
-# parameters = {
-#     "epochs" : 10
-# }
-# ez.train(parameters)
-# # Evaluation ------------------------------------------------------------------
-# #ez.evaluate()
-# #ez.ROC()
-# ez.PR()
-# #ez.confusion_matrix()
+ez.train(parameters)
+# Evaluation ------------------------------------------------------------------
+#ez.evaluate()
+#ez.ROC()
+ez.PR()
+#ez.confusion_matrix()
