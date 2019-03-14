@@ -231,7 +231,7 @@ class ezmodel:
         plt.figure(figsize=(15,5))
 
         N = len(self.network.metrics_names)
-        if lr in self.history:
+        if "lr" in self.history:
             N=N+1
 
 
@@ -254,7 +254,7 @@ class ezmodel:
             plt.legend()
             i=i+1
 
-        if lr in self.history:
+        if "lr" in self.history:
             plt.subplot(1,N,i)
             plt.title("Learning Rate: ")
             plt.plot(self.history["lr"] , c="black", label="LR")
