@@ -45,5 +45,5 @@ parameters = {
 }
 ez.train(parameters)
 # Evaluation ------------------------------------------------------------------
-#ez.ROC()
-ez.learning_graph()
+ez.ROC()
+#ez.learning_graph()
