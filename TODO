@@ -19,5 +19,6 @@
 
 18. Make ezutils.keep without synsets
 
-URGENT:
-1. Problem with MobileNet ---> "reshape_1 two times ?""
+URGENT
+1. Go through ezmodel.learning_graph() to exclude "lr" from history ("ReduceLROnplateau"), display graph with
+correct title (loss & metrics name) instead of loss graph metrics graph ...

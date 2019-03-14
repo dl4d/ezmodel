@@ -343,7 +343,7 @@ def MobileNet(input=None,transformers=None,parameters=None):
         classes = input0.y.shape[1]
     shape = (1, 1, int(1024 * alpha))
 
-    model.add(Reshape(shape, name='reshape_1'))
+    model.add(Reshape(shape))
     model.add(Dropout(dropout, name='dropout'))
     model.add(Conv2D(classes, (1, 1),padding='same',name='conv_preds'))
     model.add(Activation('softmax', name='act_softmax'))

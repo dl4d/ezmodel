@@ -6,6 +6,7 @@ from ezmodel.ezset import ezset
 from ezmodel.ezmodel import ezmodel
 from ezmodel.ezutils import split
 from ezmodel.ezblocks import *
+import keras
 
 # [EZSET]
 parameters = {
@@ -19,7 +20,30 @@ train,test  = split(data,size=0.2)
 transformers = train.transform(X="standard",y="categorical")
 
 
-from ezmodel.ezblocks import *
-pretrained = PretrainedBlock(path="vgg16",include_top=False,frozen=True,pooling="avg")
-dense      = DenseBlock(units=4096)
-cnn        = Connect(input=train,transformers=transformers,blocks=[pretrained,dense])
+# [EZNETWORK]  ----------------------------------------------------------------
+from ezmodel.eznetwork import LeNet5,MobileNetV2,MobileNet
+from ezmodel.ezlosses import f1_loss,f1_metrics
+net = LeNet5(input=train,transformers=transformers)
+# [Keras Optimizer, Loss & Metrics]  ------------------------------------------
+optimizer = {
+    "optimizer" : keras.optimizers.Adam(lr=1e-4),
+    "loss" : f1_loss,
+    "metrics" : [f1_metrics,keras.metrics.categorical_accuracy]
+}
+# [EZMODEL]  ------------------------------------------------------------------
+ez = ezmodel(
+    train = train,
+    test  = test,
+    network = net,
+    optimizer = optimizer,
+    transformers = transformers
+)
+# Training --------------------------------------------------------------------
+parameters = {
+    "epochs" : 5,
+    "callbacks": [keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.1,patience=5, min_lr=1e-10, verbose=1)]
+}
+ez.train(parameters)
+# Evaluation ------------------------------------------------------------------
+#ez.ROC()
+ez.learning_graph()

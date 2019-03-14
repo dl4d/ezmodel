@@ -225,77 +225,230 @@ class ezmodel:
     #     print("\n")
 
 
-
-
     def learning_graph(self):
-        loss = []
-        val_loss = []
-        metric =[]
-        val_metric=[]
-
-        for key in self.history:
-            if "loss" in key:
-                if "val" in key:
-                    val_loss = self.history[key]
-                else:
-                    loss = self.history[key]
-            else:
-                if "val" in key:
-                    val_metric = self.history[key]
-                else:
-                    metric = self.history[key]
 
 
         plt.figure(figsize=(15,5))
 
-        plt.subplot(1,2,1)
-        plt.title('Loss Learning Graph')
-        plt.plot(loss , c="red", label="Training")
-        plt.plot(val_loss, c="green", label="Validation")
-        plt.ylabel("Loss")
-        plt.xlabel("Epochs")
-        plt.legend()
+        print(dir(self.network))
+        print(self.network.losses)
+        print(self.network.loss)
+        print(type(self.network.loss_functions[0].__name__))
+        print(self.network.metrics)
 
-        plt.subplot(1,2,2)
-        plt.title('Metric Learning Graph')
-        plt.plot(metric , c="red", label="Training")
-        plt.plot(val_metric, c="green", label="Validation")
-        plt.ylabel("Metrics")
-        plt.xlabel("Epochs")
-        plt.legend()
+        N = len(self.network.metrics_names)
+
+
+        i=1
+        for item in self.network.metrics_names:
+            train = self.history[item]
+            if "val_"+item in [*self.history]:
+                validation = self.history["val_"+item]
+
+            plt.subplot(1,N,i)
+            if item == "loss":
+                plt.title("Loss : "+self.network.loss_functions[0].__name__)
+            else:
+                plt.title("Metrics" + item)
+
+            plt.plot(train , c="red", label="Training")
+            plt.plot(validation, c="green", label="Validation")
+            plt.ylabel(item)
+            plt.xlabel("Epochs")
+            plt.legend()
+            i=i+1
 
         plt.show()
+
+
+        # for key in self.history:
+        #     if key == "lr":
+        #         continue
+        #     print(key)
+        #
+        # print(self.network.metrics_names)
+
+
+        # loss = []
+        # val_loss = []
+        # metric =[]
+        # val_metric=[]
+        #
+        # for key in self.history:
+        #     if "loss" in key:
+        #         if "val" in key:
+        #             val_loss = self.history[key]
+        #         else:
+        #             loss = self.history[key]
+        #     else:
+        #         if "val" in key:
+        #             val_metric = self.history[key]
+        #         else:
+        #             metric = self.history[key]
+
+
+        # plt.figure(figsize=(15,5))
+        #
+        # plt.subplot(1,2,1)
+        # plt.title('Loss Learning Graph')
+        # plt.plot(loss , c="red", label="Training")
+        # plt.plot(val_loss, c="green", label="Validation")
+        # plt.ylabel("Loss")
+        # plt.xlabel("Epochs")
+        # plt.legend()
+        #
+        # plt.subplot(1,2,2)
+        # plt.title('Metric Learning Graph')
+        # plt.plot(metric , c="red", label="Training")
+        # plt.plot(val_metric, c="green", label="Validation")
+        # plt.ylabel("Metrics")
+        # plt.xlabel("Epochs")
+        # plt.legend()
+        #
+        # plt.show()
+
+    # def learning_graph(self):
+    #     loss = []
+    #     val_loss = []
+    #     metric =[]
+    #     val_metric=[]
+    #
+    #     for key in self.history:
+    #         if "loss" in key:
+    #             if "val" in key:
+    #                 val_loss = self.history[key]
+    #             else:
+    #                 loss = self.history[key]
+    #         else:
+    #             if "val" in key:
+    #                 val_metric = self.history[key]
+    #             else:
+    #                 metric = self.history[key]
+    #
+    #
+    #     plt.figure(figsize=(15,5))
+    #
+    #     plt.subplot(1,2,1)
+    #     plt.title('Loss Learning Graph')
+    #     plt.plot(loss , c="red", label="Training")
+    #     plt.plot(val_loss, c="green", label="Validation")
+    #     plt.ylabel("Loss")
+    #     plt.xlabel("Epochs")
+    #     plt.legend()
+    #
+    #     plt.subplot(1,2,2)
+    #     plt.title('Metric Learning Graph')
+    #     plt.plot(metric , c="red", label="Training")
+    #     plt.plot(val_metric, c="green", label="Validation")
+    #     plt.ylabel("Metrics")
+    #     plt.xlabel("Epochs")
+    #     plt.legend()
+    #
+    #     plt.show()
+
+
+    def ROC(self):
+        from scipy import interp
+        from itertools import cycle
+
+        print("[Notice]: ezmodel.ROC() works only with y as 'categorical' transformer")
+        prob = self.predict()
+
+        #Temporary transform data
+        if self.transformerY is not None:
+            test = copy.deepcopy(self.data_test)
+            test.preprocess(X=None,y=self.transformerY)
+        else:
+            test = self.data_test
+
+        n_classes = prob.shape[1]
+
+        fpr = dict()
+        tpr = dict()
+        roc_auc = dict()
+        for i in range(n_classes):
+            print(test.y.shape)
+            print(prob.shape)
+            fpr[i], tpr[i], _ = roc_curve(test.y[:,i], prob[:,i])
+            roc_auc[i] = auc(fpr[i], tpr[i])
+
+        # Compute micro-average ROC curve and ROC area
+        fpr["micro"], tpr["micro"], _ = roc_curve(test.y.ravel(), prob.ravel())
+        roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
+
+        # First aggregate all false positive rates
+        all_fpr = np.unique(np.concatenate([fpr[i] for i in range(n_classes)]))
+
+        # Then interpolate all ROC curves at this points
+        mean_tpr = np.zeros_like(all_fpr)
+        for i in range(n_classes):
+            mean_tpr += interp(all_fpr, fpr[i], tpr[i])
+
+        # Finally average it and compute AUC
+        mean_tpr /= n_classes
+
+        fpr["macro"] = all_fpr
+        tpr["macro"] = mean_tpr
+        roc_auc["macro"] = auc(fpr["macro"], tpr["macro"])
+
+        # Plot all ROC curves
+        plt.figure(1)
+        plt.plot(fpr["micro"], tpr["micro"],
+                 label='micro-average ROC curve (area = {0:0.2f})'
+                       ''.format(roc_auc["micro"]),
+                 color='deeppink', linestyle=':', linewidth=4)
+
+        plt.plot(fpr["macro"], tpr["macro"],
+                 label='macro-average ROC curve (area = {0:0.2f})'
+                       ''.format(roc_auc["macro"]),
+                 color='navy', linestyle=':', linewidth=4)
+
+        colors = cycle(['aqua', 'darkorange', 'cornflowerblue'])
+        for i, color in zip(range(n_classes), colors):
+            plt.plot(fpr[i], tpr[i], color=color, lw=2,
+                     label='ROC curve of class {0} (area = {1:0.2f})'
+                     ''.format(i, roc_auc[i]))
+
+        plt.plot([0, 1], [0, 1], 'k--', lw=2)
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title('Some extension of Receiver operating characteristic to multi-class')
+        plt.legend(loc="lower right")
+        plt.show()
+
+
+
+
+        # probs = prob[:,1]
+        # auc = roc_auc_score(self.data_test.y,probs)
+        # specificity, sensitivity, thresholds = roc_curve(self.data_test.y, probs)
+        # plt.figure(1)
+        # plt.plot([0, 1], [0, 1], 'k--')
+        # plt.plot( sensitivity,specificity, label='Model (AUC = {:.3f})'.format(auc))
+        # plt.xlabel('Sensitivity (TP rate)')
+        # plt.ylabel('Specificity (FP rate)')
+        # plt.title('ROC curve')
+        # plt.legend(loc='best')
+        # plt.show()
+
 
     # def ROC(self):
     #
-    #     print("[Notice]: ezmodel.ROC() works only with y as 'categorical' transformer.")
-    #     p = self.predict()
-    #     specificity, sensitivity, thresholds_keras = roc_curve(self.data_test.y, p.argmax(axis=1))
-    #     auc_keras = auc(specificity, sensitivity)
+    #     print("[Notice]: ezmodel.ROC() works only with y as 'categorical' transformer (binary classes)")
+    #     prob = self.predict()
+    #     probs = prob[:,1]
+    #     auc = roc_auc_score(self.data_test.y,probs)
+    #     specificity, sensitivity, thresholds = roc_curve(self.data_test.y, probs)
     #     plt.figure(1)
     #     plt.plot([0, 1], [0, 1], 'k--')
-    #     plt.plot(specificity, sensitivity, label='Model (AUC = {:.3f})'.format(auc_keras))
-    #     plt.xlabel('Specificity (FP rate)')
-    #     plt.ylabel('Sensitivity (TP rate)')
+    #     plt.plot( sensitivity,specificity, label='Model (AUC = {:.3f})'.format(auc))
+    #     plt.xlabel('Sensitivity (TP rate)')
+    #     plt.ylabel('Specificity (FP rate)')
     #     plt.title('ROC curve')
     #     plt.legend(loc='best')
     #     plt.show()
-
-    def ROC(self):
-
-        print("[Notice]: ezmodel.ROC() works only with y as 'categorical' transformer (binary classes)")
-        prob = self.predict()
-        probs = prob[:,1]
-        auc = roc_auc_score(self.data_test.y,probs)
-        specificity, sensitivity, thresholds = roc_curve(self.data_test.y, probs)
-        plt.figure(1)
-        plt.plot([0, 1], [0, 1], 'k--')
-        plt.plot( sensitivity,specificity, label='Model (AUC = {:.3f})'.format(auc))
-        plt.xlabel('Sensitivity (TP rate)')
-        plt.ylabel('Specificity (FP rate)')
-        plt.title('ROC curve')
-        plt.legend(loc='best')
-        plt.show()
 
 
     # def PR(self):
