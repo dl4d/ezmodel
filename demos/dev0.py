@@ -4,58 +4,49 @@ sys.path.append(os.path.abspath('..\\..\\ezmodel'))
 #from ezmodel.ezmodel import ezmodel
 from ezmodel.ezset import ezset
 from ezmodel.ezmodel import ezmodel
+from ezmodel.ezutils import split
+from ezmodel.ezblocks import *
 
-from ezmodel.ezutils import split,show_images
-from ezmodel.eznetwork import UNET
-from ezmodel import ezlosses
-import keras
-
-# [EZSET]  -------------------------------------------------------------------
-parameters={
-    "name"      : "Blob",
-    "path"      : "C:\\Users\\daian\\Desktop\\DATA\\Blob\\images\\",
-    "path_mask" : "C:\\Users\\daian\\Desktop\\DATA\\Blob\\masks\\",
-    "resize"    : (64,64)
+# [EZSET]
+parameters = {
+    "path"        : "C:\\Users\\daian\\Desktop\\DATA\\Skin_raw\\skin_binary_undersampled_128_128.npz",
 }
 data = ezset(parameters)
 
 #Split dataset into Train/Test subset
 train,test  = split(data,size=0.2)
 #Transform
-transformers = train.transform(X="minmax",y="minmax")
-# [EZNETWORK]  ----------------------------------------------------------------
-parameters = {
-    "n" : 64
-}
-net = UNET(input=train,transformers=transformers,parameters=parameters)
-# [Keras Optimizer, Loss & Metrics]  ------------------------------------------
-optimizer = {
-    "optimizer" : keras.optimizers.Adam(lr=1e-5),
-    "loss"      : ezlosses.dice_loss,
-    "metrics"   : [ezlosses.dice_metrics,keras.metrics.mean_squared_error]
-}
-# [EZMODEL]  ------------------------------------------------------------------
-augmentation_parameters={
-    "rotation_range" : 15,
-    "width_shift_range" : .15,
-    "height_shift_range" : .15,
-    "horizontal_flip"  : True
-}
+transformers = train.transform(X="standard",y="categorical")
 
-ez = ezmodel(
-    train = train,
-    test  = test,
-    network = net,
-    optimizer = optimizer,
-    transformers = transformers,
-    augmentation = augmentation_parameters
-)
-# Training --------------------------------------------------------------------
-parameters = {
-    "epochs" : 50,
-}
-ez.train(parameters)
-# Evaluation ------------------------------------------------------------------
-ez.evaluate()
-# save
-ez.save("blob")
+# [EZNETWORK with custome EZBLOCKS]
+
+#LeNet5
+conv1  = ConvBlock(filters=6,kernel_size=(5,5),activation="relu",pooling=(2,2))
+conv2  = ConvBlock(filters=16,kernel_size=(5,5),activation="relu",pooling=(2,2))
+pooling = GlobalAveragePooling2D()
+dense1 = DenseBlock(units=120)
+dense2 = Dense(80)
+net    = Connect(input=train,transformers=transformers,blocks=[conv1,conv2,pooling,dense1,dense2])
+net.summary()
+
+
+# pretrained = PretrainedBlock(path="vgg16",include_top=False,frozen=False,pooling="avg")
+# dense      = DenseBlock(units=200,activation="relu",dropout=0.5)
+# net = Connect(input=train,transformers=transformers,blocks=[pretrained,dense])
+# net.summary()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###

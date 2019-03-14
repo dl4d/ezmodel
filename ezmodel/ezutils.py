@@ -40,6 +40,45 @@ def split(data,size=0.2,random_state=42):
     return train,test
 
 
+def binarize(data,class0=None,class0_label="class0",class1=None,class1_label="class1"):
+    if class0 is None:
+        raise Exception('[Fail] ezutils.keep(): Please pass a set of class0 name as parameters !')
+
+    if class1 is None:
+        raise Exception('[Fail] ezutils.keep(): Please pass a set of class0 name as parameters !')
+
+    if not hasattr(data,"synsets"):
+        raise Exception('[Fail] ezutils.keep(): Please pass dataset containing synsets !')
+
+    @np.vectorize
+    def contained0(x):
+        return x in S0
+    @np.vectorize
+    def contained1(x):
+        return x in S1
+
+    labels0 = [key  for (key, value) in data.synsets.items() if value in class0]
+    S0 = set(labels0)
+    indix0 = np.where(contained0(data.y))[0].astype('int64')
+    data.y[indix0]=0
+
+    labels1 = [key  for (key, value) in data.synsets.items() if value in class1]
+    S1 = set(labels1)
+    indix1 = np.where(contained1(data.y))[0].astype('int64')
+    data.y[indix1]=1
+
+    newdict = dict()
+    newdict[0] = class0_label
+    newdict[1] = class1_label
+
+    indices = np.concatenate((indix0,indix1))
+    data.X = data.X[indices]
+    data.y = data.y[indices]
+    data.synsets = newdict
+
+    return data
+
+
 def keep(data,classes=None):
 
     if classes is None:

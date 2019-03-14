@@ -518,6 +518,11 @@ class ezset:
         print("[X] Flatten: Done")
 
     def undersampling(self,min):
+        #squeeze because npz add a singleton dimension once saved
+        if len(self.y.shape)==2:
+            if self.y.shape[1]==1:
+                self.y = np.squeeze(self.y)
+
         c = Counter(self.y)
         u = np.unique(self.y)
         indices = []

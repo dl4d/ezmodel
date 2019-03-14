@@ -283,7 +283,7 @@ class ezmodel:
 
     def ROC(self):
 
-        print("[Notice]: ezmodel.ROC() works only with y as 'categorical' transformer.")
+        print("[Notice]: ezmodel.ROC() works only with y as 'categorical' transformer (binary classes)")
         prob = self.predict()
         probs = prob[:,1]
         auc = roc_auc_score(self.data_test.y,probs)
@@ -326,7 +326,7 @@ class ezmodel:
     #     plt.show()
 
     def PR(self):
-        print("[Notice]: ezmodel.PR() works only with y as 'categorical' transformer.")
+        print("[Notice]: ezmodel.PR() works only with y as 'categorical' transformer (binary classes)")
         print("[Warning]: ezmodel.PR() Check some examples to understand more again.")
 
         prob = self.predict()
@@ -338,7 +338,7 @@ class ezmodel:
         f1 = f1_score(self.data_test.y, yhat)
         auc0 = auc(recall, precision)
         ap = average_precision_score(self.data_test.y, probs)
-        print('f1=%.3f auc=%.3f ap=%.3f' % (f1, auc0, ap))
+        print('Precision Recall : \n F1=%.3f AUC=%.3f Average Precision=%.3f' % (f1, auc0, ap))
         plt.figure(1)
         plt.plot([0, 1], [0.5, 0.5], 'k--', label="No skill model")
         plt.plot(recall, precision, marker='.', label="Model (AUC = {:.3f}, F1 = {:.3f}, AvgPrec={:.3f})".format(auc0,f1,ap))

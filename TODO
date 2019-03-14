@@ -15,3 +15,9 @@
 15. ResNet50 => revoir le code car changement de version de keras
 16. Check overwriting variable into JupyterNotebook -> should conflict transformers ....
 17. Manage Tensorflow Graph Session (check pw2_cnn.ipynb on Colab to get the piece of code to clear keras session)
+
+
+18. Make ezutils.keep without synsets
+
+URGENT:
+1. Problem with MobileNet ---> "reshape_1 two times ?""
