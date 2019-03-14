@@ -247,9 +247,9 @@ class ezmodel:
 
             plt.subplot(1,N,i)
             if item == "loss":
-                plt.title("Loss : "+self.network.loss_functions[0].__name__)
+                plt.title("Loss: "+self.network.loss_functions[0].__name__)
             else:
-                plt.title("Metrics" + item)
+                plt.title("Metrics: " + item)
 
             plt.plot(train , c="red", label="Training")
             plt.plot(validation, c="green", label="Validation")
