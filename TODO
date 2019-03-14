@@ -14,10 +14,19 @@
 12. DONE
 13. Replace 0/1/2 .. into the confusion matrix in case we have a synset into the ezset
 14. ezblocks : Code blocks again using __call__ to be able to build a network from ezblock using functionnal way as Keras do
-15. ResNet50 => revoir le code car changement de version de keras
+15. ----> A changer par la version keras (2.2.4) ResNet50 => revoir le code car changement de version de keras
 16. Check overwriting variable into JupyterNotebook -> should conflict transformers ....
 17. Manage Tensorflow Graph Session (check pw2_cnn.ipynb on Colab to get the piece of code to clear keras session)
 18. Make ezutils.keep without synsets
 
+19. NASnetlarge, NASNetMobile, DenseNet121,DenseNet169, DenseNet201, Resnet, ResnetV2, ResNext to include into:
+    - eznetwork for empty
+    - ezblocks for pretrained
+    - ezset for preprocessing inputs
+
 URGENT
 1. ezmodel.PR() taking into account multiclass like ezmodel.ROC()
+2. confusion matrix from sklearn:
+    cm_plot_labels = ['no_tumor_tissue', 'has_tumor_tissue']
+    plot_confusion_matrix(cm, cm_plot_labels, title='Confusion Matrix')
+3. sklearn classification report to add somewher into ezmodel, something like ezmodel.classification_report() should work
