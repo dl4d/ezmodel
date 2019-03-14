@@ -228,7 +228,7 @@ class ezmodel:
     def learning_graph(self):
 
 
-        plt.figure(figsize=(15,5))
+        plt.figure(figsize=(20,5))
 
         N = len(self.network.metrics_names)
         if "lr" in self.history:
