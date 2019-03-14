@@ -230,13 +230,9 @@ class ezmodel:
 
         plt.figure(figsize=(15,5))
 
-        print(dir(self.network))
-        print(self.network.losses)
-        print(self.network.loss)
-        print(type(self.network.loss_functions[0].__name__))
-        print(self.network.metrics)
-
         N = len(self.network.metrics_names)
+        if lr in self.history:
+            N=N+1
 
 
         i=1
@@ -257,6 +253,14 @@ class ezmodel:
             plt.xlabel("Epochs")
             plt.legend()
             i=i+1
+
+        if lr in self.history:
+            plt.subplot(1,N,i)
+            plt.title("Learning Rate: ")
+            plt.plot(self.history["lr"] , c="black", label="LR")
+            plt.ylabel(item)
+            plt.xlabel("Epochs")
+            plt.legend()
 
         plt.show()
 
