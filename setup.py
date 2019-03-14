@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='EZmodel',
-      version='1.1',
+      version='1.2',
       description='Easy model construction module (with Keras)',
       url='http://github.com/dl4d/ezmodel',
       author='Fab.Da',
