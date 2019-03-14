@@ -13,6 +13,7 @@ from sklearn.metrics import roc_curve,auc,roc_auc_score,precision_score,recall_s
 import copy
 from keras.preprocessing.image import ImageDataGenerator
 import numpy as np
+from decimal import Decimal
 
 
 class ezmodel:
@@ -228,7 +229,7 @@ class ezmodel:
     def learning_graph(self):
 
 
-        plt.figure(figsize=(20,5))
+        plt.figure(figsize=(25,5))
 
         N = len(self.network.metrics_names)
         if "lr" in self.history:
@@ -257,7 +258,10 @@ class ezmodel:
         if "lr" in self.history:
             plt.subplot(1,N,i)
             plt.title("Learning Rate: ")
+
             plt.plot(self.history["lr"] , c="black", label="LR")
+            # plt.plot('%.2E' % Decimal(self.history["lr"]) , c="black", label="LR")
+
             plt.ylabel(item)
             plt.xlabel("Epochs")
             plt.legend()
