@@ -13,7 +13,7 @@ parameters = {
     "index"  : "C:\\Users\\daian\\Desktop\\DATA\\Skin_raw\\train.csv",
     "image.path.column" : "image_id",
     "target.column" : "dx",
-    "resize"        : (224,224)
+    "resize"        : (64,64)
 }
 data = ezset(parameters)
 

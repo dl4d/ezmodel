@@ -96,7 +96,7 @@ class ezmodel:
                 train.X = np.copy(X_train)
                 train.y = np.copy(y_train)
             else:
-                print("[Notice] Test set will be used ad Validation set for training !")
+                print("[Notice] Test set will be used as Validation set for training !")
                 validation_data = (test.X,test.y)
 
             self.model_parameters = parameters
