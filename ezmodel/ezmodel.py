@@ -33,13 +33,17 @@ class ezmodel:
             if optimizer is None:
                 raise Exception("ezmodel.init(): Please provide an optimizer !")
 
-
             self.data_train   = train
             self.data_test    = test
             self.network = network
 #            self.optimizer = optimizer
-            self.transformerX = transformers[0]
-            self.transformerY = transformers[1]
+            if transformers is not None:
+                self.transformerX = transformers[0]
+                self.transformerY = transformers[1]
+            else:
+                self.transformerX = None
+                self.transformerY = None
+
             self.model_parameters = None
             self.history = None
             self.augmentation = None
@@ -70,16 +74,19 @@ class ezmodel:
         batch_size = 32
         validation_data = None
 
-
-        # Transformers
-        print("[X] Transformers : ")
-        train = copy.deepcopy(self.data_train)
-        train.preprocess(X=self.transformerX,y=self.transformerY)
-        print("--- Use transformers to preprocess Training set : Done");
-        if "validation_split" not in parameters:
+        #Version 2.0 : VIRTUAL IMAGE SET
+        if not self.data_train.virtual:
+            train = copy.deepcopy(self.data_train)
             test = copy.deepcopy(self.data_test)
-            test.preprocess(X=self.transformerX,y=self.transformerY)
-            print("--- Use transformers to preprocess Test set : Done");
+
+            if (self.transformerX is not None) and (self.transformerY is not None):
+                # Transformers
+                print("[X] Transformers : ")
+                train.preprocess(X=self.transformerX,y=self.transformerY)
+                print("--- Use transformers to preprocess Training set : Done");
+                if "validation_split" not in parameters:
+                    test.preprocess(X=self.transformerX,y=self.transformerY)
+                    print("--- Use transformers to preprocess Test set : Done");
 
 
         if parameters is not None:
@@ -96,11 +103,25 @@ class ezmodel:
                 validation_data = (X_valid,y_valid)
                 train.X = np.copy(X_train)
                 train.y = np.copy(y_train)
-            else:
+            #else:
+            elif not self.data_train.virtual:
                 print("[Notice] Test set will be used as Validation set for training !")
                 validation_data = (test.X,test.y)
 
-            self.model_parameters = parameters
+            dparam=dict()
+            dparam["epochs"] = epochs
+            dparam["callbacks"] = callbacks
+            dparam["verbose"] = verbose
+            dparam["batch_size"] = batch_size
+            dparam["validation_data"] = validation_data
+
+            #self.model_parameters = parameters
+            self.model_parameters = dparam
+
+        #Version 2.0 : VIRTUAL IMAGE SET
+        if self.data_train.virtual:
+            self.train_virtual()
+            return
 
         if self.augmentation is None:
             history = self.network.fit(
@@ -129,6 +150,26 @@ class ezmodel:
                             callbacks=callbacks
                             )
 
+        #Save history
+        if self.history is None:
+            self.history = history.history
+        else:
+            for key in history.history:
+                self.history[key] += history.history[key]
+
+    #Version 2.0 : VIRTUAL IMAGE SET
+    def train_virtual(self):
+        print("[X] Training with Virtual ezset.")
+
+        history = self.network.fit_generator(
+                        generator = self.data_train.generator,
+                        steps_per_epoch=self.data_train.generator.n//self.data_train.generator.batch_size,
+                        validation_data = self.data_test.generator,
+                        validation_steps = self.data_test.generator.n//self.data_test.generator.batch_size,
+                        epochs=self.model_parameters["epochs"],
+                        verbose = self.model_parameters["verbose"],
+                        callbacks=self.model_parameters["callbacks"]
+                        )
         #Save history
         if self.history is None:
             self.history = history.history
@@ -375,8 +416,6 @@ class ezmodel:
         tpr = dict()
         roc_auc = dict()
         for i in range(n_classes):
-            print(test.y.shape)
-            print(prob.shape)
             fpr[i], tpr[i], _ = roc_curve(test.y[:,i], prob[:,i])
             roc_auc[i] = auc(fpr[i], tpr[i])
 

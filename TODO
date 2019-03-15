@@ -24,6 +24,8 @@
     - ezblocks for pretrained
     - ezset for preprocessing inputs
 
+20. Implement Crossvalidation on ezmodel.train(with an argument or a parameter "kfold")
+
 URGENT
 1. ezmodel.PR() taking into account multiclass like ezmodel.ROC()
 2. confusion matrix from sklearn:

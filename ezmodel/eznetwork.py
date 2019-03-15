@@ -91,31 +91,6 @@ def Connect(bottom,top):
     return model
 
 
-# def Transfer(input=None,transformers=None,from=None,top=None):
-#     bottom = Pretrained(input=train,path=from,frozen=True)
-#     mlp = MLP(input=train,transformers=transformers,parameters=top,pretrained=bottom)
-#     return Connect(bottom,mlp)
-
-
-
-
-
-# def customCNN(input=None, transformers=None, parameters=None):
-#     #Checkers:
-#     if len(input.X.shape) !=4:
-#         raise Exception("\n\n \t [Fail] eznetwork.MLP(): LeNet5 convnet is not designed to work with this kind of inputs ! Please use another Network architecture ! ")
-#
-#     #Temporary transform data
-#     if transformers is not None:
-#         input0 = copy.deepcopy(input)
-#         input0.preprocess(X=transformers[0],y=transformers[1])
-#     else:
-#         input0 = input
-#
-#     inputs = SmartInput(input0)
-
-
-
 #LeNet5
 def LeNet5(input=None, transformers=None, parameters=None):
 

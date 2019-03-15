@@ -15,10 +15,16 @@ import numpy as np
 import os
 import pickle
 from zipfile import ZipFile
+import copy
 
 
 
 def split(data,size=0.2,random_state=42):
+
+    #Version 2.0 : VIRTUAL IMAGE SET
+    if hasattr(data,"virtual"):
+        if data.virtual == True:
+            return split_virtual(data,size,random_state)
 
     X_train,X_test,y_train,y_test = train_test_split(data.X,data.y,test_size=size,random_state=42)
 
@@ -36,6 +42,49 @@ def split(data,size=0.2,random_state=42):
     test.X = X_test
     test.y = y_test
     test.synsets = data.synsets
+
+    return train,test
+
+#Version 2.0 : VIRTUAL IMAGE SET
+def split_virtual(data,size,random_state):
+
+
+    data.imagedg._validation_split=size
+    print("[Notice: ezutils.split_virtual(): Unused argument 'random_state']")
+
+    train = ezset()
+    train.virtual=True
+    train.params = data.params
+    train.imagedg = data.imagedg
+    train.generator = train.imagedg.flow_from_directory(
+            train.params["path"],
+            target_size=train.params["resize"],
+            batch_size=train.params["batch_size"],
+            color_mode=train.params["color_mode"],
+            class_mode=train.params["class_mode"],
+            shuffle=True,
+            subset="training")
+    #Create virtual entry from memory (no memory consumption)
+    train.X = np.zeros((train.generator.samples,) + train.generator.image_shape)
+    train.y = np.zeros((train.generator.samples,) + (train.generator.num_classes,))
+
+
+    test = ezset()
+    test.virtual=True
+    test.params = data.params
+    test.imagedg = data.imagedg
+    test.generator = test.imagedg.flow_from_directory(
+            test.params["path"],
+            target_size=test.params["resize"],
+            batch_size=test.params["batch_size"],
+            color_mode=test.params["color_mode"],
+            class_mode=test.params["class_mode"],
+            shuffle=True,
+            subset="validation")
+    #Create virtual entry from memory (no memory consumption)
+    test.X = np.zeros((test.generator.samples,) + test.generator.image_shape)
+    test.y = np.zeros((test.generator.samples,) + (test.generator.num_classes,))
+
 
     return train,test
 

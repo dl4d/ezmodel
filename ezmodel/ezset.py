@@ -25,12 +25,13 @@ import keras
 
 class ezset:
 
-    def __init__(self,parameters=None):
+    def __init__(self,parameters=None,virtual=False):
 
         self.X = None
         self.y = None
         self.synsets = None
         self.params = None
+        self.virtual = False
 
         if parameters is None:
             return
@@ -38,6 +39,13 @@ class ezset:
             raise Exception("ezset.init() : Please provide at least a path into parameters")
 
         self.params = parameters
+
+
+        #Version 2.0 : VIRTUAL IMAGE SET
+        if virtual:
+            self.init_virtual()
+            return
+
 
         if (os.path.isdir(self.params["path"])):
             if "path_mask" not in self.params:
@@ -68,6 +76,37 @@ class ezset:
             return
 
         raise Exception('[Fail]: Path Not found !')
+
+    #Version 2.0 : VIRTUAL IMAGE SET
+    def init_virtual(self):
+
+        if "target_size" not in self.params:
+            self.params["target_size"]=None
+        if "batch_size" not in self.params:
+            self.params["batch_size"]=None
+        if "color_mode" not in self.params:
+            self.params["color_mode"]="RGB"
+        if "class_mode" not in self.params:
+            self.params["class_mode"]="categorical"
+
+        self.virtual = True
+        self.imagedg = keras.preprocessing.image.ImageDataGenerator(
+                rescale = self.params["scaling"]
+        )
+        self.generator = self.imagedg.flow_from_directory(
+                self.params["path"],
+                target_size = self.params["resize"],
+                batch_size = self.params["batch_size"],
+                color_mode = self.params["color_mode"],
+                class_mode = self.params["class_mode"],
+                shuffle=True
+        )
+
+
+        #Create virtual entry from memory (no memory consumption)
+        self.X = np.zeros((self.generator.samples,) + self.generator.image_shape)
+        self.y = np.zeros((self.generator.samples,) + (self.generator.num_classes,))
+
 
 
 
@@ -165,10 +204,18 @@ class ezset:
         i=0
         for filename in sorted(os.listdir(parameters["path"])):
             curimg = os.path.join(parameters["path"], filename)
+            # img = Image.open(curimg)
+            # images.append(img)
+            # image_paths.append(curimg)
+            # img.close()
+
             img = Image.open(curimg)
-            images.append(img)
+            imgcopy = img.copy()
+            images.append(imgcopy)
             image_paths.append(curimg)
             img.close()
+
+
             i=i+1
         tot=i
         print ('--- Total images :', str(tot))
@@ -294,11 +341,19 @@ class ezset:
             i=0
             for filename in sorted(os.listdir(curdir)):
                 curimg = os.path.join(curdir, filename)
+                # img = Image.open(curimg)
+                # images.append(img)
+                # labels.append(k)
+                # image_paths.append(curimg)
+                # img.close()
                 img = Image.open(curimg)
-                images.append(img)
+                imgcopy = img.copy()
+                images.append(imgcopy)
                 labels.append(k)
                 image_paths.append(curimg)
                 img.close()
+
+
                 i=i+1
             #synsets.append(subdir)
             synsets[k]=subdir
@@ -438,6 +493,10 @@ class ezset:
         print('--- Done !')
 
     def transform(self,X=None,y=None):
+
+        if self.virtual:
+            return self.transform_virtual(X,y)
+
         if X is not None:
             if X.lower()=="minmax":
                 transformerX = to_minmax(self.X)
@@ -482,6 +541,21 @@ class ezset:
         return (transformerX,transformerY)
 
 
+    def transform_virtual(self,X,y):
+            if X.lower()=="minmax":
+                self.transformerX = X.lower()
+            elif X.lower()=="standard":
+                self.transformerX = X.lower()
+            else:
+                raise Exception("ezset.transform(): Unknown transformer X : ", X, " in ezset 'virtual' context ")
+            if y.lower()=="minmax":
+                self.transformery = y.lower()
+            elif X.lower()=="standard":
+                self.transformery = y.lower()
+            else:
+                raise Exception("ezset.transform(): Unknown transformer y : ", y, " in ezset 'virtual' context ")
+
+
     def preprocess(self,X=None,y=None):
 
         if X is not None:
@@ -516,6 +590,9 @@ class ezset:
     def flatten(self):
         self.X = self.X.reshape(-1,self.X.shape[1]*self.X.shape[2]*self.X.shape[3])
         print("[X] Flatten: Done")
+
+    def falseRGB(self):
+        self.X = np.concatenate((self.X,self.X,self.X), axis=3)
 
     def undersampling(self,min):
         #squeeze because npz add a singleton dimension once saved

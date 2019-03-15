@@ -7,7 +7,10 @@ from ezmodel.ezmodel import ezmodel
 
 from ezmodel.ezutils import split,show_images
 from ezmodel.eznetwork import LeNet5
+from ezmodel.ezblocks import *
 import keras
+import numpy as np
+
 
 # [EZSET]  -------------------------------------------------------------------
 parameters = {
@@ -16,12 +19,22 @@ parameters = {
     "resize"      : (32,32)
 }
 data = ezset(parameters)
+
+#Preprocessing
+data.falseRGB()
+
 #Split dataset into Train/Test subset
 train,test  = split(data,size=0.2)
+
 #Create Transformers on training set (further be used for test set when evaluated)
 transformers = train.transform(X="standard",y="categorical")
+
 # [EZNETWORK]  ----------------------------------------------------------------
-net = LeNet5(input=train,transformers=transformers)
+#Transfer
+pretrained = PretrainedBlock(path="vgg16",include_top=False,frozen=False,pooling="avg")
+dense      = DenseBlock(units=1000,activation="relu",dropout=0.5)
+net = Connect(input=train,transformers=transformers,blocks=[pretrained,dense])
+net.summary()
 # [Keras Optimizer, Loss & Metrics]  ------------------------------------------
 optimizer = {
     "optimizer" : keras.optimizers.Adam(lr=1e-5),
@@ -29,29 +42,20 @@ optimizer = {
     "metrics" : [keras.metrics.categorical_accuracy]
 }
 # [EZMODEL]  ------------------------------------------------------------------
-augmentation_parameters={
-    "rotation_range" : 15,
-    "width_shift_range" : .15,
-    "height_shift_range" : .15,
-    "horizontal_flip"  : True
-}
-
 ez = ezmodel(
     train = train,
     test  = test,
     network = net,
     optimizer = optimizer,
-    transformers = transformers,
-    augmentation = augmentation_parameters
+    transformers = transformers
 )
-
 # Training --------------------------------------------------------------------
 parameters = {
-    "epochs" : 1000,
-    # "validation_split": 0.2
+    "epochs" : 50,
+    "callbacks" : [keras.callbacks.EarlyStopping(monitor="val_loss",patience=5)]
 }
 ez.train(parameters)
 # Evaluation ------------------------------------------------------------------
 ez.evaluate()
 ez.learning_graph()
-ez.confusion_matrix()
+ez.ROC()
