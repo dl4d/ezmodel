@@ -198,6 +198,10 @@ class ezmodel:
         test.preprocess(X=self.transformerX,y=self.transformerY)
         print("--- Use transformers to preprocess Test set : Done")
         p = self.network.predict(test.X,verbose=0)
+
+        if self.transformerY[0].__name__ == "to_categorical":
+            p = p.argmax(axis=1)
+        
         return p
 
     def keras_augmentation(self,parameters,train,batch_size):

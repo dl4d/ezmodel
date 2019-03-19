@@ -20,29 +20,6 @@ parameters = {
     "class_mode"  : "categorical"
 }
 data = ezset(parameters,virtual=True)
-#
-# datagen = keras.preprocessing.image.ImageDataGenerator(
-#         rescale=1./255,
-#         validation_split=0.1
-# )
-#
-# train_gen = datagen.flow_from_directory(
-#                         data.params["path"],
-#                         target_size=data.params["resize"],
-#                         batch_size=data.params["batch_size"],
-#                         color_mode=data.params["color_mode"],
-#                         class_mode=data.params["class_mode"],
-#                         # shuffle=True,
-#                         subset="training")
-#
-# test_gen = datagen.flow_from_directory(
-#                         data.params["path"],
-#                         target_size=data.params["resize"],
-#                         batch_size=data.params["batch_size"],
-#                         color_mode=data.params["color_mode"],
-#                         class_mode=data.params["class_mode"],
-#                         # shuffle=True,
-#                         subset="validation")
 
 #Split dataset into Train/Test subset
 train,test  = split(data,size=0.2)
@@ -62,19 +39,6 @@ train,test  = split(data,size=0.2)
 from ezmodel.eznetwork import LeNet5
 net = LeNet5(input=train)
 net.summary()
-# net = Sequential()
-# net.add(Conv2D(6,(5,5),input_shape=(32,32,1)))
-# net.add(Activation("relu"))
-# net.add(MaxPooling2D(pool_size=(2,2)))
-# net.add(Conv2D(16,(5,5)))
-# net.add(Activation("relu"))
-# net.add(MaxPooling2D(pool_size=(2,2)))
-# net.add(Flatten())
-# net.add(Dense(120))
-# net.add(Dense(80))
-# net.add(Dense(4,activation="softmax"))
-# net.summary()
-
 
 # [Keras Optimizer, Loss & Metrics]  ------------------------------------------
 optimizer = {
@@ -97,16 +61,6 @@ parameters = {
     "epochs" : 50,
 }
 ez.train(parameters)
-# history = net.fit_generator(
-#                 train_gen,
-#                 steps_per_epoch=train_gen.samples//train_gen.batch_size,
-#                 validation_data = test_gen,
-#                 validation_steps = test_gen.samples//test_gen.batch_size,
-#                 epochs=50,
-#                 verbose = 1,
-#                 callbacks=None
-#                 )
-
 
 # Evaluation ------------------------------------------------------------------
 #ez.evaluate()
