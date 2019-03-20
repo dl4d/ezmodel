@@ -210,8 +210,8 @@ class ezmodel:
         print("--- Use transformers to preprocess Test set : Done")
         p = self.network.predict(test.X,verbose=0)
 
-        if self.transformerY[0].__name__ == "to_categorical":
-            p = p.argmax(axis=1)
+        # if self.transformerY[0].__name__ == "to_categorical":
+        #     p = p.argmax(axis=1)
 
         return p
 
