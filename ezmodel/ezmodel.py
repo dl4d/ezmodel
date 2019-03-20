@@ -18,7 +18,7 @@ from decimal import Decimal
 
 class ezmodel:
 
-    def __init__(self,train=None,test=None,network=None,optimizer=None,transformers=None,augmentation=None,empty=False):
+    def __init__(self,train=None,test=None,transformers=None,network=None,optimizer=None,augmentation=None,empty=False):
 
         if not empty:
             if train is None:
@@ -201,7 +201,7 @@ class ezmodel:
 
         if self.transformerY[0].__name__ == "to_categorical":
             p = p.argmax(axis=1)
-        
+
         return p
 
     def keras_augmentation(self,parameters,train,batch_size):

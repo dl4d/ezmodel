@@ -616,7 +616,23 @@ class ezset:
         print("[X] Undersampling with min=",min,": Done")
 
 
+    def input(self):
+        return train.X.shape[1:]
 
+    def output(self,transformers=None):
+        #Temporary transform data
+        if transformers is not None:
+            input0 = copy.deepcopy(self)
+            input0.preprocess(X=transformers[0],y=transformers[1])
+        else:
+            input0 = self
+
+        if len(input0.y.shape)==2:
+            return input0.y.shape[1]
+        if len(input0.y.shape)==1:
+            return 1
+        if len(input0.y.shape)==4:
+            return input0.y.shape
 
 
 

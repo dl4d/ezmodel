@@ -152,6 +152,16 @@ def keep(data,classes=None):
     data.synsets = newdict
     return data
 
+def bunch(*args):
+    """
+    Make a bunch of object: return a tuple
+    parameters : Variable number of arguments
+    """
+    B = ()
+    for i in range(len(args)):
+        B = B + (args[i],)
+    return B
+
 
 
 def show_images(data,n=16):
