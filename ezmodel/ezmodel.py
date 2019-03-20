@@ -608,7 +608,7 @@ class ezmodel:
 
 
     def predict_bar(self,sample,precision=3):
-        syn = self.synsets
+        syn = self.data_test.synsets
         fig,ax = plt.subplots()
         y_pos = np.arange(len(syn))
         X =[]
