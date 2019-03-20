@@ -1,3 +1,32 @@
+
+model = Sequential()
+model.add( Dense( 50 , input_shape = (17,) ) )
+model.add( Activation( "relu" ) )
+model.add( Dense( 30 ) )
+model.add( Activation( "tanh" ) )
+model.add( Dense( 4 ) )
+model.add( Activation( "softmax" ) )
+
+dense1 = DenseBlock(units=50,activation="relu")
+dense2 = DenseBlock(units=30,activation="relu")
+output = DenseBlock(units=4,activation="softmax")
+model  = Connect(...,blocks=[dense1,dense2,output])
+
+model = Sequential()
+model.add( Conv2D( filters= 6, kernel_size= (5,5), input_shape=(32,32,1) ) )
+model.add( MaxPooling2D( pool_size = (2,2) ) )
+model.add( Conv2D( filters= 16, kernel_size= (5,5), input_shape=(32,32,1) ) )
+model.add( MaxPooling2D( pool_size = (2,2) ) )
+model.add( Flatten() )
+model.add( Dense( 120 ) )
+model.add( Dense( 84 ) )
+model.add( Dense( 10 ) )
+model.add( Activation( "softmax" ) )
+
+
+
+
+
 import sys, os
 sys.path.append(os.path.abspath('..\\..\\ezmodel'))
 

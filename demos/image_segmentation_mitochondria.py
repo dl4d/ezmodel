@@ -12,7 +12,7 @@ import keras
 
 # [EZSET]  -------------------------------------------------------------------
 parameters={
-    "name"      : "Mitochondria",
+    # "name"      : "Mitochondria",
     "path"      : "C:\\Users\\daian\\Desktop\\DATA\\Mito\\images\\",
     "path_mask" : "C:\\Users\\daian\\Desktop\\DATA\\Mito\\masks\\",
     "resize"    : (128,128)
@@ -49,4 +49,4 @@ ez.train(parameters)
 # Evaluation ------------------------------------------------------------------
 ez.evaluate()
 # save
-ez.save("mito")
+# ez.save("mito")

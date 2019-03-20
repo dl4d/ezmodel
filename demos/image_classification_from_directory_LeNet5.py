@@ -11,7 +11,6 @@ import keras
 
 # [EZSET]  -------------------------------------------------------------------
 parameters = {
-    "name"        : "Bacteria",
     "path"        : "C:\\Users\\daian\\Desktop\\DATA\\bacteria\\",
     "resize"      : (32,32)
 }
@@ -25,8 +24,8 @@ net = LeNet5(input=train,transformers=transformers)
 # [Keras Optimizer, Loss & Metrics]  ------------------------------------------
 optimizer = {
     "optimizer" : keras.optimizers.Adam(lr=1e-4),
-    "loss" : keras.losses.categorical_crossentropy,
-    "metrics" : [keras.metrics.categorical_accuracy]
+    "loss"      : keras.losses.categorical_crossentropy,
+    "metrics"   : [keras.metrics.categorical_accuracy]
 }
 # [EZMODEL]  ------------------------------------------------------------------
 ez = ezmodel(

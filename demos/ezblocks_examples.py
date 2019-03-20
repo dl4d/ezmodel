@@ -20,7 +20,7 @@ transformers = train.transform(X="standard",y="categorical")
 
 # [EZNETWORK with custome EZBLOCKS]
 
-#LeNet5 written with ezblocks
+#LeNet5 written with mix ezblocks + Keras Layer
 conv1  = ConvBlock(filters=6,kernel_size=(5,5),activation="relu",pooling=(2,2))
 conv2  = ConvBlock(filters=16,kernel_size=(5,5),activation="relu",pooling=(2,2))
 pooling = GlobalAveragePooling2D()
