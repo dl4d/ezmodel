@@ -479,7 +479,7 @@ class ezmodel:
         plt.plot([0, 1], [0, 1], 'k--', lw=2, label="No skill model")
         plt.xlim([0.0, 1.0])
         plt.ylim([0.0, 1.05])
-        plt.xlabel('Specificity (FP Rate)')
+        plt.xlabel('1-Specificity (FP Rate)')
         plt.ylabel('Sensitivity (TP Rate)')
         plt.title('ROC')
         plt.legend(loc="lower right")
@@ -605,6 +605,24 @@ class ezmodel:
                 display(m)
         else:
             raise Exception('ezmodel.confusion_matrix(): Impossible to display confusion matrix: No synsets found into test dataset! ')
+
+
+    def predict_bar(self,sample,precision=3):
+        syn = self.synsets
+        fig,ax = plt.subplots()
+        y_pos = np.arange(len(syn))
+        X =[]
+        tup = ()
+        for key in syn:
+          tup += (syn[key],)
+          X.append(np.round(samp[int(key)],precision))
+
+        ax.barh(y_pos, X, align='center',color='red', ecolor='black')
+        plt.xlim(0,1)
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(tup)
+        plt.show()
+
 
     def save(self,filename):
 
