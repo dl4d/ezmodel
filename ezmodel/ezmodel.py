@@ -33,13 +33,21 @@ class ezmodel:
             if optimizer is None:
                 raise Exception("ezmodel.init(): Please provide an optimizer !")
 
+            print("[X] ezmodel creation : Done ")
+
             self.data_train   = train
+            print("--- Training set has been added to the model.")
+
             self.data_test    = test
+            print("--- Test set has been added to the model.")
+
             self.network = network
+            print("--- Neural Network has been added to the model.")
 #            self.optimizer = optimizer
             if transformers is not None:
                 self.transformerX = transformers[0]
                 self.transformerY = transformers[1]
+                print("--- Transformers have been added to the model.")
             else:
                 self.transformerX = None
                 self.transformerY = None
@@ -49,10 +57,12 @@ class ezmodel:
             self.augmentation = None
 
             self.network.compile(**optimizer)
+            print("--- Neural Network has been compiled with optimizer successfuly.")
 
             if augmentation is not None:
                 #self.keras_augmentation(augmentation)
                 self.augmentation = augmentation #augmentation_parameters !!
+                print("--- Data Augmentation has been added to the model.")
         else:
             self.data_train   = None
             self.data_test    = None
@@ -63,6 +73,7 @@ class ezmodel:
             self.model_parameters = None
             self.history = None
             self.augmentation = None
+            print("[X] Empty ezmodel creation: Done !")
 
 
 
