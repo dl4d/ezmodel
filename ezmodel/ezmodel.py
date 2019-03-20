@@ -608,7 +608,7 @@ class ezmodel:
 
 
     def predict_bar(self,sample,precision=3):
-        if not (self.transformerY.__name__ == "to_categorical"):
+        if not (self.transformerY[0].__name__ == "to_categorical"):
             raise Exception('[Fail] ezmodel.predict_bar(): Work only with categorical transformed data !')
         syn = self.data_test.synsets
         fig,ax = plt.subplots()
