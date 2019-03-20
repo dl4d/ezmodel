@@ -617,7 +617,7 @@ class ezmodel:
         tup = ()
         for key in syn:
           tup += (syn[key],)
-          X.append(np.round(samp[int(key)],precision))
+          X.append(np.round(sample[int(key)],precision))
 
         ax.barh(y_pos, X, align='center',color='red', ecolor='black')
         plt.xlim(0,1)
