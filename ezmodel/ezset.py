@@ -617,7 +617,7 @@ class ezset:
 
 
     def input(self):
-        return train.X.shape[1:]
+        return self.X.shape[1:]
 
     def output(self,transformers=None):
         #Temporary transform data
