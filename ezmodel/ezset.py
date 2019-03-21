@@ -227,10 +227,17 @@ class ezset:
         i=0
         for filename in sorted(os.listdir(parameters["path_mask"])):
             curimg = os.path.join(parameters["path_mask"], filename)
+            # img = Image.open(curimg)
+            # masks.append(img)
+            # mask_paths.append(curimg)
+            # img.close()
             img = Image.open(curimg)
-            masks.append(img)
-            mask_paths.append(curimg)
+            imgcopy = img.copy()
+            images.append(imgcopy)
+            image_paths.append(curimg)
             img.close()
+
+
             i=i+1
         tot=i
         print ('--- Total images :', str(tot))
