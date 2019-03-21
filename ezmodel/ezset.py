@@ -233,8 +233,8 @@ class ezset:
             # img.close()
             img = Image.open(curimg)
             imgcopy = img.copy()
-            images.append(imgcopy)
-            image_paths.append(curimg)
+            masks.append(imgcopy)
+            mask_paths.append(curimg)
             img.close()
 
 
