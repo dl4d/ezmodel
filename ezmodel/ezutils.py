@@ -170,8 +170,11 @@ def show_images(data,n=16):
     if not math.sqrt(n).is_integer():
         raise Exception("\n\n\t[Fail] ezutils.show_images(): Please provide n as a perfect quare ! (2, 4, 9, 16, 25, 36, 49, 64 ...)")
 
-    if len(data.X.shape)==2:
-        raise Exception("\n\n\t[Fail] ezutils.show_images(): Your input doesn't seem to be an Images: tensor dim should be 4, your provided ",str(len(data.X.shape))," instead ... please use an image instead, or check your preprocessing (flatten ?) !")
+    if hasattr(data,"X"):
+        if len(data.X.shape)==2:
+            raise Exception("\n\n\t[Fail] ezutils.show_images(): Your input doesn't seem to be an Images: tensor dim should be 4, your provided ",str(len(data.X.shape))," instead ... please use an image instead, or check your preprocessing (flatten ?) !")
+    else:
+        data.X = data
 
     population = list(range(data.X.shape[0]))
     r = random.sample(population,n)

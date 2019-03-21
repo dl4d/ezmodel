@@ -620,6 +620,7 @@ class ezmodel:
             raise Exception('ezmodel.confusion_matrix(): Impossible to display confusion matrix: No synsets found into test dataset! ')
 
 
+
     def predict_bar(self,sample,precision=3):
         if not (self.transformerY[0].__name__ == "to_categorical"):
             raise Exception('[Fail] ezmodel.predict_bar(): Work only with categorical transformed data !')
