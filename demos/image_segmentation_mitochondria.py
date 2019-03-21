@@ -43,12 +43,17 @@ ez = ezmodel(
 )
 # Training --------------------------------------------------------------------
 parameters = {
-    "epochs" : 1,
+    "epochs" : 50,
 }
 ez.train(parameters)
 # Evaluation ------------------------------------------------------------------
-p = ez.predict()
-show_images(p,4)
 #ez.evaluate()
+# Predictions -----------------------------------------------------------------
+p = ez.predict()
+
+r = show_images(p,4) # show predicted masks
+
+show_images(ez.data_test.y,samples=r) # show corresponding original masks
+
 # save
 # ez.save("mito")

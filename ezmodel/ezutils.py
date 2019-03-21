@@ -216,7 +216,7 @@ def bunch(*args):
 #     plt.axis("off")
 #     plt.show()
 
-def show_images(data,n=16):
+def show_images(data,n=16,samples=None):
 
     #Checkers
     if not math.sqrt(n).is_integer():
@@ -234,11 +234,17 @@ def show_images(data,n=16):
         syn   = None
 
     population = list(range(dispX.shape[0]))
-    r = random.sample(population,n)
+    if samples is None:
+        r = random.sample(population,n)
+    else:
+        r = samples
+        n = len(samples)
+
     fig,axes = plt.subplots(nrows = int(math.sqrt(n)),ncols = int(math.sqrt(n)))
     fig.tight_layout()
     mask = False
     for i in range(n):
+
         plt.subplot(math.sqrt(n),math.sqrt(n),i+1)
 
         if (dispX[r[i]].shape[2])==1:
@@ -276,6 +282,8 @@ def show_images(data,n=16):
 
     plt.axis("off")
     plt.show()
+
+    return r
 
 
 def load_ezmodel(filename):
