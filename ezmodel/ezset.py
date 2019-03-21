@@ -332,7 +332,7 @@ class ezset:
             raise Exception("[Fail] ezset.import_classification_images() : Path in parameters is not a directory !")
 
 
-        print ('[X] Loading :', parameters["path"])
+        print ('[X] Loading directory:', parameters["path"])
 
         k=0
         tot=0
@@ -359,7 +359,7 @@ class ezset:
             synsets[k]=subdir
             k=k+1
             tot=tot+i
-            print ('--- dir: ', subdir, '(',str(i),' images )')
+            print ('--- subdir: ', subdir, '(',str(i),' images )')
         print ('--- Total images :', str(tot))
         self.images = images
         self.labels = labels
