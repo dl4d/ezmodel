@@ -43,10 +43,12 @@ ez = ezmodel(
 )
 # Training --------------------------------------------------------------------
 parameters = {
-    "epochs" : 50,
+    "epochs" : 1,
 }
 ez.train(parameters)
 # Evaluation ------------------------------------------------------------------
-ez.evaluate()
+p = ez.predict()
+show_images(p,4)
+#ez.evaluate()
 # save
 # ez.save("mito")

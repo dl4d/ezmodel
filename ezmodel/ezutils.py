@@ -163,6 +163,58 @@ def bunch(*args):
     return B
 
 
+#
+# def show_images(data,n=16):
+#
+#     #Checkers
+#     if not math.sqrt(n).is_integer():
+#         raise Exception("\n\n\t[Fail] ezutils.show_images(): Please provide n as a perfect quare ! (2, 4, 9, 16, 25, 36, 49, 64 ...)")
+#
+#     if len(data.X.shape)==2:
+#         raise Exception("\n\n\t[Fail] ezutils.show_images(): Your input doesn't seem to be an Images: tensor dim should be 4, your provided ",str(len(data.X.shape))," instead ... please use an image instead, or check your preprocessing (flatten ?) !")
+#
+#     population = list(range(data.X.shape[0]))
+#     r = random.sample(population,n)
+#     fig,axes = plt.subplots(nrows = int(math.sqrt(n)),ncols = int(math.sqrt(n)))
+#     fig.tight_layout()
+#     mask = False
+#     for i in range(n):
+#         plt.subplot(math.sqrt(n),math.sqrt(n),i+1)
+#
+#         if (data.X[r[i]].shape[2])==1:
+#             plt.imshow(np.squeeze(data.X[r[i]]),cmap="gray")
+#         else:
+#             #RGB data
+#             if data.X[r[i]].dtype == "float32" or data.X[r[i]].dtype == "float64":
+#                 plt.imshow(data.X[r[i]].astype('int32'))
+#             elif data.X[r[i]].dtype == "int32" or data.X[r[i]].dtype == "int64":
+#                 plt.imshow(data.X[r[i]])
+#             else:
+#                 raise Exception('[Fail] ezutils.show_images(): only float32, float64, int32, int64 are supported type ')
+#
+#         if data.synsets is not None:
+#             if len(data.y.shape)==1:
+#                 plt.title(data.synsets[data.y[r[i]]])
+#             elif len(data.y.shape)==2:
+#                 plt.title(data.synsets[np.argmax(data.y[r[i]])])
+#         else:
+#             if len(data.y.shape)==4:
+#                 mask = True
+#
+#     if mask==True:
+#         fig,axes = plt.subplots(nrows = int(math.sqrt(n)),ncols = int(math.sqrt(n)))
+#         fig.tight_layout()
+#         for i in range(n):
+#             plt.subplot(math.sqrt(n),math.sqrt(n),i+1)
+#
+#             if (data.y[r[i]].shape[2])==1:
+#                 plt.imshow(np.squeeze(data.y[r[i]]),cmap="gray")
+#             else:
+#                 plt.imshow(data.y[r[i]])
+#             plt.axis("off")
+#
+#     plt.axis("off")
+#     plt.show()
 
 def show_images(data,n=16):
 
@@ -173,10 +225,15 @@ def show_images(data,n=16):
     if hasattr(data,"X"):
         if len(data.X.shape)==2:
             raise Exception("\n\n\t[Fail] ezutils.show_images(): Your input doesn't seem to be an Images: tensor dim should be 4, your provided ",str(len(data.X.shape))," instead ... please use an image instead, or check your preprocessing (flatten ?) !")
+        dispX = data.X
+        dispY = data.y
+        syn   = data.synsets
     else:
-        data.X = data
+        dispX = data
+        dispY = None
+        syn   = None
 
-    population = list(range(data.X.shape[0]))
+    population = list(range(dispX.shape[0]))
     r = random.sample(population,n)
     fig,axes = plt.subplots(nrows = int(math.sqrt(n)),ncols = int(math.sqrt(n)))
     fig.tight_layout()
@@ -184,25 +241,26 @@ def show_images(data,n=16):
     for i in range(n):
         plt.subplot(math.sqrt(n),math.sqrt(n),i+1)
 
-        if (data.X[r[i]].shape[2])==1:
-            plt.imshow(np.squeeze(data.X[r[i]]),cmap="gray")
+        if (dispX[r[i]].shape[2])==1:
+            plt.imshow(np.squeeze(dispX[r[i]]),cmap="gray")
         else:
             #RGB data
-            if data.X[r[i]].dtype == "float32" or data.X[r[i]].dtype == "float64":
-                plt.imshow(data.X[r[i]].astype('int32'))
-            elif data.X[r[i]].dtype == "int32" or data.X[r[i]].dtype == "int64":
-                plt.imshow(data.X[r[i]])
+            if dispX[r[i]].dtype == "float32" or dispX[r[i]].dtype == "float64":
+                plt.imshow(dispX[r[i]].astype('int32'))
+            elif dispX[r[i]].dtype == "int32" or dispX[r[i]].dtype == "int64":
+                plt.imshow(dispX[r[i]])
             else:
                 raise Exception('[Fail] ezutils.show_images(): only float32, float64, int32, int64 are supported type ')
 
-        if data.synsets is not None:
-            if len(data.y.shape)==1:
-                plt.title(data.synsets[data.y[r[i]]])
+        if syn is not None:
+            if len(dispY.shape)==1:
+                plt.title(syn[dispY[r[i]]])
             elif len(data.y.shape)==2:
-                plt.title(data.synsets[np.argmax(data.y[r[i]])])
+                plt.title(syn[np.argmax(dispY[r[i]])])
         else:
-            if len(data.y.shape)==4:
-                mask = True
+            if dispY is not None:
+                if len(dispY.shape)==4:
+                    mask = True
 
     if mask==True:
         fig,axes = plt.subplots(nrows = int(math.sqrt(n)),ncols = int(math.sqrt(n)))
@@ -210,10 +268,10 @@ def show_images(data,n=16):
         for i in range(n):
             plt.subplot(math.sqrt(n),math.sqrt(n),i+1)
 
-            if (data.y[r[i]].shape[2])==1:
-                plt.imshow(np.squeeze(data.y[r[i]]),cmap="gray")
+            if (dispY[r[i]].shape[2])==1:
+                plt.imshow(np.squeeze(dispY[r[i]]),cmap="gray")
             else:
-                plt.imshow(data.y[r[i]])
+                plt.imshow(dispY[r[i]])
             plt.axis("off")
 
     plt.axis("off")
