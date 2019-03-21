@@ -43,9 +43,9 @@ class ezmodel:
 
             #We store the original network in case of reset
             if not hasattr(self,"orig_network"):
-                self.orig_network = network
+                self.orig_network = copy.deepcopy(network)
 
-            self.network = network
+            self.network = copy.deepcopy(network)
 
 
 
