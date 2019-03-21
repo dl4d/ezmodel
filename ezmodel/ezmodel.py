@@ -41,7 +41,15 @@ class ezmodel:
             self.data_test    = test
             print("--- Test set has been added to the model.")
 
+            #We store the original network in case of reset
+            if not hasattr(self,"orig_network"):
+                self.orig_network = network
+
             self.network = network
+
+
+
+
             print("--- Neural Network has been added to the model.")
 #            self.optimizer = optimizer
             if transformers is not None:
@@ -76,6 +84,11 @@ class ezmodel:
             print("[X] Empty ezmodel creation: Done !")
 
 
+    def reset(self):
+        if not hasattr(self,"orig_network"):
+            raise Exception("[Fail] ezmodel.reset(): No original network has been defined")
+        self.network = copy.deepcopy(self.orig_network)
+        print("[X] Ezmodel's Network has been reseted to original one !")
 
     def train(self,parameters=None):
         #default parameters
