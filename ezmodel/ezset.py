@@ -12,6 +12,7 @@ from io import BytesIO
 from urllib.request import urlopen
 from collections import Counter
 import copy
+from tqdm import tqdm
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, LabelEncoder
@@ -46,7 +47,6 @@ class ezset:
             self.init_virtual()
             return
 
-
         if (os.path.isdir(self.params["path"])):
             if "path_mask" not in self.params:
                 if "index" not in self.params:
@@ -60,7 +60,6 @@ class ezset:
             else:
                 #Image segmentation from images/ masks/ directories
                 self.import_segmentation_images(parameters)
-                return
 
         if (os.path.isfile(self.params["path"])):
 
@@ -74,6 +73,12 @@ class ezset:
                 return
             raise Exception('File extension/type not recognized ! Should be "csv" or "npz" !')
             return
+
+        #Case of Joker for semgentation
+        if "***" in self.params["path"]:
+            self.import_segmentation_images2(parameters)
+            return
+
 
         raise Exception('[Fail]: Path Not found !')
 
@@ -184,6 +189,171 @@ class ezset:
           self.images_to_keras()
 
         return
+
+
+    def import_segmentation_images2(self,parameters):
+
+        #Collapsing masks
+        if "collapse" not in parameters:
+            collapse = True
+        else:
+            collapse = parameters["collapse"]
+
+        parent_dir = parameters["path"].split("***")[0]
+        image_dir  = parameters["path"].split("***")[1][1:]
+        mask_dir   = parameters["path_mask"].split("***")[1][1:]
+
+        ids = next(os.walk(parent_dir))[1]
+
+        #images = np.zeros((len(ids),parameters["resize"][0],parameters["resize"][1],3),dtype=np.uint8)
+        #masks  = np.zeros((len(ids),parameters["resize"][0],parameters["resize"][1],1),dtype=np.uint8)
+        images = []
+        image_paths = []
+        masks  = []
+        mask_paths = []
+
+        print ('[X] Loading Images & Masks from :', parent_dir)
+
+        for n,directories in tqdm(enumerate(sorted(os.listdir(parent_dir))),total=len(ids)):
+
+            #Images
+            curimdir = os.path.join(parent_dir,directories,image_dir)
+            for image in sorted(os.listdir(curimdir)):
+                curimg = os.path.join(curimdir,image)
+                img = Image.open(curimg)
+                imgcopy = img.copy()
+                images.append(imgcopy)
+                image_paths.append(curimg)
+                img.close()
+
+            #Masks
+            curmaskdir = os.path.join(parent_dir,directories,mask_dir)
+            tmp=[]
+            for mask in sorted(os.listdir(curmaskdir)):
+                curmask = os.path.join(curmaskdir,mask)
+                img = Image.open(curmask)
+                imgcopy = img.copy()
+                tmp.append(imgcopy)
+                img.close()
+
+            #mask collapsing ?
+            if collapse:
+                a=np.array(tmp[0])
+                for i in tmp[1:]:
+                    a += np.array(i)
+            else:
+                a=tmp
+            img = Image.fromarray(a)
+            imgcopy = img.copy()
+            masks.append(imgcopy)
+            img.close()
+
+
+            # print(len(tmp))
+        self.images = images
+        self.image_paths = image_paths
+        self.masks  = masks
+
+        print ('--- Total images :', len(self.images))
+        print ('--- Total masks  :', len(self.masks))
+
+        if "resize" in self.params:
+          self.images_masks_to_keras(self.params["resize"])
+        else:
+          self.images_masks_to_keras()
+
+
+    # def import_segmentation_images2(self,parameters):
+    #     """
+    #     Import segmentation image:
+    #     Top directory -> Samples -> Images and Masks
+    #     """
+    #     #Collapsing masks
+    #     if "collapse" not in parameters:
+    #         collapse = True
+    #     else:
+    #         collapse = parameters["collapse"]
+    #
+    #
+    #     images_pd  = parameters["path"].split("***")[0]
+    #     images_dir = parameters["path"].split("***")[1][1:]
+    #     masks_pd   = parameters["path_mask"].split("***")[0]
+    #     masks_dir  = parameters["path_mask"].split("***")[1][1:]
+    #
+    #     images = []
+    #     image_paths=[]
+    #     masks = []
+    #     mask_paths = []
+    #
+    #     #Images
+    #     print ('[X] Loading Images:', parameters["path"])
+    #     i=0
+    #     for directories in sorted(os.listdir(images_pd)):
+    #         pi = os.path.join(images_pd,directories,images_dir)
+    #         for image in sorted(os.listdir(pi)):
+    #             # print(image)
+    #             curimg = os.path.join(pi,image)
+    #
+    #             img = Image.open(curimg)
+    #             imgcopy = img.copy()
+    #             images.append(imgcopy)
+    #             image_paths.append(curimg)
+    #             img.close()
+    #
+    #             i=i+1
+    #     print ('--- Total images :', str(i))
+    #     self.images = images
+    #     self.image_paths = image_paths
+    #
+    #     #Masks
+    #     print ('[X] Loading Masks:', parameters["path_mask"])
+    #     i=0
+    #     for directories in sorted(os.listdir(masks_pd)):
+    #         pm = os.path.join(masks_pd,directories,masks_dir)
+    #         k=0
+    #         local_masks= []
+    #         local_mask_paths = []
+    #         for image in sorted(os.listdir(pm)):
+    #             # print(image)
+    #             curimg = os.path.join(pm,image)
+    #
+    #             img = Image.open(curimg)
+    #             imgcopy = img.copy()
+    #             # masks.append(imgcopy)
+    #             # mask_paths.append(curimg)
+    #             local_masks.append(imgcopy)
+    #             local_mask_paths.append(curimg)
+    #             img.close()
+    #
+    #             i=i+1
+    #             k=k+1
+    #
+    #         #Collapsing
+    #         if (k>1) and (collapse):
+    #             im = np.array(local_masks[0])
+    #             for m in local_masks[1:]:
+    #                 im+=np.array(m)
+    #             masks.append(Image.fromarray(im))
+    #             mask_paths.append(local_mask_paths)
+    #
+    #     print ('--- Total Masks :', str(i))
+    #     if collapse:
+    #         print ('--- Total Masks collapsed :', str(len(masks)))
+    #     self.masks = masks
+    #     self.mask_paths = mask_paths
+    #
+    #     print("\n")
+    #
+    #     if "resize" in self.params:
+    #       self.images_masks_to_keras(self.params["resize"])
+    #     else:
+    #       self.images_masks_to_keras()
+
+
+
+        #sys.exit()
+
+
 
     #SEGMENTATION IMAGES from DIRECTORY
     def import_segmentation_images(self,parameters):
@@ -600,6 +770,10 @@ class ezset:
 
     def falseRGB(self):
         self.X = np.concatenate((self.X,self.X,self.X), axis=3)
+
+    def autoencoder(self):
+        self.orig_y = np.copy(self.y)
+        self.y = np.copy(self.X)
 
     def undersampling(self,min):
         #squeeze because npz add a singleton dimension once saved
