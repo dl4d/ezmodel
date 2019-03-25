@@ -13,7 +13,7 @@ from keras.applications import *
 # from keras.applications.inception_resnet_v2 import InceptionResNetV2
 # from keras.applications.inception_v3 import InceptionV3
 # from keras.applications.nasnet import NASNetLarge,NASNetMobile
-
+import keras
 
 
 import os
@@ -119,6 +119,81 @@ def LeNet5(input=None, transformers=None, parameters=None):
 
     model = Model(inputs=inputs, outputs=outputs)
     return model
+
+
+# [EZNETWORK]  ----------------------------------------------------------------
+def reparam_trick_vae(args):
+    """Reparameterization trick by sampling fr an isotropic unit Gaussian.
+    # Arguments:
+        args (tensor): mean and log of variance of Q(z|X)
+    # Returns:
+        z (tensor): sampled latent vector
+    """
+    z_mean, z_log_var = args
+    batch = K.shape(z_mean)[0]
+    dim = K.int_shape(z_mean)[1]
+    # by default, random_normal has mean=0 and std=1.0
+    epsilon = K.random_normal(shape=(batch, dim))
+
+    return z_mean + K.exp(0.5 * z_log_var) * epsilon
+
+#Basic Variational Autoencoder
+def VAE(input=None,transformers=None,parameters=None,optimizer = None):
+
+    #Temporary transform data
+    if transformers is not None:
+        input0 = copy.deepcopy(input)
+        input0.preprocess(X=transformers[0],y=transformers[1])
+    else:
+        input0 = input
+
+    intermediate_dim = parameters["intermediate_dim"]
+    activation       = parameters["activation"]
+    latent_dim       = parameters["latent_dim"]
+
+    inputs = SmartInput(input0)
+
+    #Encoder
+    x = Dense(intermediate_dim, activation=activation)(inputs)
+    if "bn" in parameters:
+        x = BatchNormalization(momentum=parameters["bn"])(x)
+    if "dropout" in parameters:
+        x = Dropout(parameters["dropout"]) (x)
+    z_mean = Dense(latent_dim, name='z_mean')(x)
+    z_log_var = Dense(latent_dim, name='z_log_var')(x)
+    z = Lambda(reparam_trick_vae, output_shape=(latent_dim,), name='z')([z_mean, z_log_var])
+    encoder = Model(inputs, [z_mean, z_log_var, z], name='encoder')
+
+    #Decoder
+    latent_inputs = Input(shape=(latent_dim,), name='z_sampling')
+    x = Dense(intermediate_dim, activation='relu')(latent_inputs)
+    if "bn" in parameters:
+        x = BatchNormalization(momentum=parameters["bn"])(x)
+    if "dropout" in parameters:
+        x = Dropout(parameters["dropout"])(x)
+    outputs = Dense(encoder.input_shape[1], activation='linear')(x) #Test du activation output = linear
+    decoder = Model(latent_inputs, outputs, name='decoder')
+
+    outputs = decoder(encoder(inputs)[2]) #We only take the latent z as input of the decoder that's why we use [2]
+    vae = Model(inputs, outputs, name='vae_mlp')
+    #
+    # #Embed compilation
+    # if optimizer is not None:
+    #     #Recontruction_loss
+    #     reconstruction_loss = keras.losses.mse(inputs,outputs)
+    #     reconstruction_loss *= encoder.input_shape[1]
+    #     #KL-divergeance
+    #     kl_loss = 1 + z_log_var - K.square(z_mean) - K.exp(z_log_var)
+    #     kl_loss = K.sum(kl_loss, axis=-1)
+    #     kl_loss *= -0.5
+    #     #VAE loss as combination of reconstruction_loss and KL-divergence
+    #     vae_loss = K.mean(reconstruction_loss + kl_loss)
+    #     vae.add_loss(vae_loss)
+    #     vae.compile(optimizer=optimizer["optimizer"])
+    #     print("[X] VAE has been compiled with Reconstruction Loss and KL-Divergence")
+
+
+    return (vae,z_mean,z_log_var)
 
 #Basic Multilayer Perceptron
 def MLP(input=None, transformers=None, parameters=None,pretrained=None):

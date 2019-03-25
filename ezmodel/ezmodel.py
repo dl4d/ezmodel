@@ -45,7 +45,8 @@ class ezmodel:
             if not hasattr(self,"orig_network"):
                 self.orig_network = copy.deepcopy(network)
 
-            self.network = copy.deepcopy(network)
+            #self.network = copy.deepcopy(network)
+            self.network = network
 
 
 
@@ -64,7 +65,9 @@ class ezmodel:
             self.history = None
             self.augmentation = None
 
+
             self.network.compile(**optimizer)
+
             print("--- Neural Network has been compiled with optimizer successfuly.")
 
             if augmentation is not None:
