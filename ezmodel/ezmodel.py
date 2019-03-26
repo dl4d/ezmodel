@@ -205,13 +205,26 @@ class ezmodel:
                 self.history[key] += history.history[key]
 
 
-    def evaluate(self):
+    def evaluate(self,tta=None,bs=1,augmentation=None):
+        if tta is None:
+            print ("[X] Evaluation on Test set: ")
+            test = copy.deepcopy(self.data_test)
+            test.preprocess(X=self.transformerX,y=self.transformerY)
+            print("--- Use transformers to preprocess Test set : Done")
+            p = self.network.evaluate(test.X,test.y,verbose=0)
+        else:
+            print ("[X] Evaluation on Test set using Test Time Augmentation (TTA): ")
+            test = copy.deepcopy(self.data_test)
+            test.preprocess(X=self.transformerX,y=self.transformerY)
+            print("--- Use transformers to preprocess Test set : Done")
+            if augmentation is None:
+                print ("--- Using same Data augmentation parameters as for training")
+                test_generators = self.keras_augmentation(self.augmentation,test,1)
+            else:
+                print ("--- Using provided Data augmentation parameters")
+                test_generators = self.keras_augmentation(augmentation,test,1)
+            p = self.network.evaluate_generator(test_generators,steps=len(test.X))
 
-        print ("[X] Evaluation on Test set: ")
-        test = copy.deepcopy(self.data_test)
-        test.preprocess(X=self.transformerX,y=self.transformerY)
-        print("--- Use transformers to preprocess Test set : Done")
-        p = self.network.evaluate(test.X,test.y,verbose=0)
         print("Loss: ",self.network.loss,":",p[0])
         k=0
         for m in self.network.metrics:
@@ -219,12 +232,32 @@ class ezmodel:
             k=k+1
         return p
 
-    def predict(self):
-        print ("[X] Prediction on Test set:")
-        test = copy.deepcopy(self.data_test)
-        test.preprocess(X=self.transformerX,y=self.transformerY)
-        print("--- Use transformers to preprocess Test set : Done")
-        p = self.network.predict(test.X,verbose=0)
+    def predict(self,tta=None,bs=1):
+        if tta is None:
+            print ("[X] Prediction on Test set:")
+            test = copy.deepcopy(self.data_test)
+            test.preprocess(X=self.transformerX,y=self.transformerY)
+            print("--- Use transformers to preprocess Test set : Done")
+            p = self.network.predict(test.X,verbose=0)
+
+        else:
+            print ("[X] Prediction on Test set using Test Time Augmentation (TTA):")
+            test = copy.deepcopy(self.data_test)
+            test.preprocess(X=self.transformerX,y=self.transformerY)
+            print("--- Use transformers to preprocess Test set : Done")
+            predictions = []
+            test_generators = self.keras_augmentation(self.augmentation,test,1)
+            for i in range(tta):
+                preds = self.network.predict_generator(
+                        #self.data_train.generator(test.X,shuffle=False),
+                        test_generators,
+                        steps=len(test.X))
+                predictions.append(preds)
+            print(predictions)
+            p = np.mean(predictions, axis=0)
+
+
+
 
         # if self.transformerY[0].__name__ == "to_categorical":
         #     p = p.argmax(axis=1)

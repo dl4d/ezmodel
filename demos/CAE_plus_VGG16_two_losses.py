@@ -50,20 +50,17 @@ output_global = Dense(7,activation="softmax",name="classification") (x)
 model = Model(inputs = input, outputs=[output_cae,output_global])
 model.summary()
 
-# optimizer
-def combined_loss(y_true, y_pred):
-    #xent_loss = keras.losses.mse(y_true, y_pred)
-    #kl_loss = - 0.5 * K.mean(1 + z_log_var - K.square(z_mean) - K.exp(z_log_var), axis=-1)
-    #return  xent_loss+kl_loss
-    cce_loss  = keras.losses.mse(y_true[0],y_pred[0])
-    xent_loss = keras.losses.categorical_crossentropy(y_true[1],y_pred[1])
-    return cce_loss + xent_loss
-
-
+# optimizer:
+#
+# Note : The two losses are combined (sum) together
+#
 optimizer = {
     "optimizer" : keras.optimizers.Adam(lr=1e-4),
-     "loss"     : combined_loss
+     "loss"     : {'classification': 'categorical_crossentropy', 'cae': 'mean_squared_error'},
+     "metrics"  : {'classification': 'accuracy'}
 }
+
+
 model.compile(**optimizer)
 
 #Temporary transform data

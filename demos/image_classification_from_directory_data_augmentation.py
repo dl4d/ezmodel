@@ -24,7 +24,7 @@ transformers = train.transform(X="standard",y="categorical")
 net = LeNet5(input=train,transformers=transformers)
 # [Keras Optimizer, Loss & Metrics]  ------------------------------------------
 optimizer = {
-    "optimizer" : keras.optimizers.Adam(lr=1e-5),
+    "optimizer" : keras.optimizers.Adam(lr=1e-4),
     "loss" : keras.losses.categorical_crossentropy,
     "metrics" : [keras.metrics.categorical_accuracy]
 }
@@ -47,11 +47,32 @@ ez = ezmodel(
 
 # Training --------------------------------------------------------------------
 parameters = {
-    "epochs" : 1000,
+    "epochs" : 200,
     # "validation_split": 0.2
 }
 ez.train(parameters)
 # Evaluation ------------------------------------------------------------------
 ez.evaluate()
-ez.learning_graph()
-ez.confusion_matrix()
+
+# Evaluation already defined augmentation for Test Time Augmentation (TTA)
+ez.evaluate(tta=10)
+
+# Evaluation with newly Test Time Augmentation (TTA)
+augmentation_parameters={
+    "rotation_range" : 5,
+    "width_shift_range" : .15,
+    "height_shift_range" : .15,
+    "horizontal_flip"  : True
+}
+ez.evaluate(tta=10,augmentation=augmentation_parameters)
+
+# ez.learning_graph()
+# ez.confusion_matrix()
+
+# Predictions
+# p     = ez.predict()
+
+# Prediction with Test Time Augmentation (TTA)
+# p_TTA = ez.predict(tta=10)
+
+#

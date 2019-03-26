@@ -143,11 +143,6 @@ def jaccard_distance_loss(y_true, y_pred, smooth=100):
     jac = (intersection + smooth) / (sum_ - intersection + smooth)
     return (1 - jac) * smooth
 
-#Variation autoencoder losses --------------------------------------------
-
-# Reconstruction loss of the output
-def reconstruction_loss(y_true,y_pred):
-    return keras.losses.mse(y_true,y_pred)
 
 # KL divergeance + reconstruction loss
 def vae_loss(z_mean,z_log_var):
@@ -158,3 +153,7 @@ def vae_loss(z_mean,z_log_var):
         return  xent_loss+kl_loss
 
     return keras_vae_loss
+
+# PSNR (Signal Noise Ratio) loss
+def psnr_loss(y_true,y_pred):
+  return -10.0 * K.log(1.0 / (K.mean(K.square(y_pred - y_true)))) / K.log(10.0)
