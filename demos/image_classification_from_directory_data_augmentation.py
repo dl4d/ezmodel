@@ -57,7 +57,7 @@ ez.evaluate()
 # Evaluation already defined augmentation for Test Time Augmentation (TTA)
 ez.evaluate(tta=10)
 
-# Evaluation with newly Test Time Augmentation (TTA)
+# Evaluation with another augmentation parameters for Test Time Augmentation (TTA)
 augmentation_parameters={
     "rotation_range" : 5,
     "width_shift_range" : .15,
@@ -74,5 +74,14 @@ ez.evaluate(tta=10,augmentation=augmentation_parameters)
 
 # Prediction with Test Time Augmentation (TTA)
 # p_TTA = ez.predict(tta=10)
+
+# Prediction with another augmentation for Test Time Augmentation (TTA)
+# augmentation_parameters={
+#     "rotation_range" : 5,
+#     "width_shift_range" : .15,
+#     "height_shift_range" : .15,
+#     "horizontal_flip"  : True
+# }
+# p_TTA = ez.predict(tta=10,augmentation=augmentation_parameters)
 
 #
