@@ -63,6 +63,7 @@ class ConvBlock:
 
     def __call__(self,object):
         self.father = object
+        # TODO: We then need to start init with the self object !!
 
     def get(self,input_shape=None):
 

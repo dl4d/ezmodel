@@ -6,6 +6,7 @@ from ezmodel.ezset import ezset
 from ezmodel.ezmodel import ezmodel
 from ezmodel.ezutils import split
 from ezmodel.ezblocks import *
+from ezmodel import ezlosses
 
 import keras
 
@@ -28,9 +29,12 @@ transformers = train.transform(X="standard",y="standard")
 # [EZNETWORK with custome EZBLOCKS]
 
 # An example of Autoencoder
+# Encoder
 dense1    = DenseBlock(units=1500,activation="relu",dropout=0.5)
 dense2    = DenseBlock(500,activation="sigmoid")
+# Bottleneck
 bottleneck= DenseBlock(100)
+# Decoder is generated automatically according to encoder blocks
 net       = ConnectAE(input=train,transformers=transformers,blocks=[dense1,dense2,bottleneck])
 net.summary()
 
@@ -38,6 +42,7 @@ net.summary()
 optimizer = {
     "optimizer" : keras.optimizers.Adam(lr=1e-4),
     "loss" : keras.losses.mean_squared_error,
+    # "loss"   : ezlosses.psnr_loss, #Use of Signal Noise Ration as Loss function
     "metrics" : [keras.metrics.mean_squared_error]
 }
 # [EZMODEL]  ------------------------------------------------------------------
@@ -50,7 +55,7 @@ ez = ezmodel(
 )
 # Training --------------------------------------------------------------------
 parameters = {
-    "epochs" : 100,
+    "epochs" : 500,
     # "validation_split": 0.2
 }
 ez.train(parameters)

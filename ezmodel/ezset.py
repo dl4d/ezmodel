@@ -60,6 +60,7 @@ class ezset:
             else:
                 #Image segmentation from images/ masks/ directories
                 self.import_segmentation_images(parameters)
+                return
 
         if (os.path.isfile(self.params["path"])):
 

@@ -27,6 +27,7 @@ transformers = train.transform(X="standard",y="standard")
 
 # [EZNETWORK with custome EZBLOCKS]
 # An example of Convolutoinal Autoencoder (CAE)
+#Encoder
 a1  = ConvBlock(filters=64,kernel_size=(3,3),pooling=(2,2),padding="same")
 a2  = ConvBlock(filters=128,kernel_size=(3,3),pooling=(2,2),padding="same")
 a3  = ConvBlock(filters=256,kernel_size=(3,3),pooling=(2,2),padding="same")
