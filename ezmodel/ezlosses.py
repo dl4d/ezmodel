@@ -155,7 +155,7 @@ def IoU_loss(true, pred):
     return -IoU_metrics
 
 
-def iou_loss(y_true, y_pred):
+def IoU_loss(y_true, y_pred):
     """
     IoU = (|X &amp; Y|)/ (|X or Y|)
 
