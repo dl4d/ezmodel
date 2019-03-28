@@ -145,15 +145,15 @@ def jaccard_distance_loss(y_true, y_pred, smooth=100):
 
 
 
-def iou_metrics(y_true, y_pred, smooth=1):
-    """
-    IoU = (|X &amp; Y|)/ (|X or Y|)
+def IoU_metrics(y_true, y_pred, smooth=1):
+    intersection = true * pred
+    notTrue = 1 - true
+    union = true + (notTrue * pred)
+    return K.sum(intersection)/K.sum(union)
 
-    Ref: https://www.kaggle.com/c/data-science-bowl-2018/discussion/51553
-    """
-    intersection = K.sum(K.abs(y_true * y_pred), axis=-1)
-    union = K.sum((y_true,-1) + K.sum(y_pred,-1)) - intersection
-    return (intersection + smooth) / ( union + smooth)
+def IoU_loss(true, pred):
+    return -IoU_metrics
+
 
 def iou_loss(y_true, y_pred):
     """
