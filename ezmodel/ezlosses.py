@@ -145,14 +145,14 @@ def jaccard_distance_loss(y_true, y_pred, smooth=100):
 
 
 
-def IoU_metrics(y_true, y_pred, smooth=1):
-    intersection = true * pred
-    notTrue = 1 - true
-    union = true + (notTrue * pred)
+def IoU_metrics(y_true, y_pred):
+    intersection = y_true * y_pred
+    notTrue = 1 - y_true
+    union = y_true + (notTrue * y_pred)
     return K.sum(intersection)/K.sum(union)
 
-def IoU_loss(true, pred):
-    return -IoU_metrics
+def IoU_loss(y_true, y_pred):
+    return -IoU_metrics(true,pred)
 
 
 # KL divergeance + reconstruction loss
