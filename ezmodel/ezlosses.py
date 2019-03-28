@@ -152,7 +152,7 @@ def IoU_metrics(y_true, y_pred):
     return K.sum(intersection)/K.sum(union)
 
 def IoU_loss(y_true, y_pred):
-    return -IoU_metrics(true,pred)
+    return -IoU_metrics(y_true,y_pred)
 
 
 # KL divergeance + reconstruction loss
