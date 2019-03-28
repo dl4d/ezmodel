@@ -155,16 +155,6 @@ def IoU_loss(true, pred):
     return -IoU_metrics
 
 
-def IoU_loss(y_true, y_pred):
-    """
-    IoU = (|X &amp; Y|)/ (|X or Y|)
-
-    Ref: https://www.kaggle.com/c/data-science-bowl-2018/discussion/51553
-    """
-    return -iou_metrics(y_true, y_pred)
-
-
-
 # KL divergeance + reconstruction loss
 def vae_loss(z_mean,z_log_var):
 
