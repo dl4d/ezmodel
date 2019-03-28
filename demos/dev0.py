@@ -31,83 +31,52 @@ transformers = train.transform(X="standard",y="standard")
 
 # [EZNETWORK with custome EZBLOCKS]
 
-# conv = lambda filters,pool_size: (
-#     Conv2D(filters=filters,kernel_size=(3,3)),
-#     MaxPooling2D(pool_size=pool_size)
-#     )
-# print(conv(125,(2,2)))
-
-# conv = lambda **kwargs : (
-#     Conv2D(filters=kwargs["filters"],kernel_size=(3,3),padding="same"),
-#     MaxPooling2D(pool_size=kwargs["pool_size"])
-# )
-# a = conv(filters=125,pool_size=(2,2))
-# print(a[0].get_config())
-#
-# net = eznet(input=train)
-# conv = net.newblock(
-#     Conv2D(filters="?",kernel_size=(3,3),padding="same",activation="relu"),
-#     MaxPooling2D(pool_size=(2,2), strides=None, padding='valid', data_format=None),
-#     BatchNormalization(momentum="?")
-#     )
-#
-# print(conv.blocks)
-# print(conv.args)
-# print(conv.kwargs)
-
-# def conv(*args,**kwargs):
-#     print(args)
-#     print(kwargs)
-    # return (
-    # Conv2D(filters=filters,kernel_size=kernel_size,padding="same",activation="relu"),
-    # MaxPooling2D(pool_size=pool_size, strides=None, padding='valid', data_format=None),
-    # BatchNormalization(momentum=bn)
-    # )
-
-#conv(filters=128)
-
-# ----------------------------------------------------------------------------
-# s = """
-# Conv2D(filters=?,kernel_size=?)
-# MaxPooling2D()
-# """
-#
-# def newblock(s,*args):
-#     for arg in args:
-#         s = s.replace("?",str(arg))
-#     a = s.splitlines()
-#     block=[]
-#     for l in a:
-#         if len(l)==0:
-#             continue;
-#         block.append(eval(l))
-#     return block
-#
-# a = newblock(s,128,(3,3))
-# print(a[0].get_config()["filters"])
-# ----------------------------------------------------------------------------
-
-
 conv = Block().define(
 """
-Conv2D(filters=?,kernel_size=?)
-MaxPooling2D(pool_size=?)
-BatchNormalization(momentum=?)
+    Conv2D(filters=?,kernel_size=?)
+    MaxPooling2D(pool_size=?)
+    BatchNormalization(momentum=?)
 """
 )
 
 dense = Block().define(
 """
-Dense(units=?)
-Dropout(rate=?)
+    Dense(units=?)
+    Dropout(rate=?)
 """
 )
 
+#inp(Input(shape=train.X))
+graph =Graph(train.X)
+graph("",conv(filters=128,kernel_size=(3,3),pool_size=(2,2),momentum=0.8))
+graph("",conv(filters=128,kernel_size=(3,3),pool_size=(2,2),momentum=0.8))
+# graph("_",GlobalAveragePooling2D())
+# graph("",conv(filters=128,kernel_size=(3,3),pool_size=(2,2),momentum=0.8))
+# graph("_",GlobalAveragePooling2D())
+# graph("",Concatenate())
+# graph("",Dense(120))
+# graph("",Dense(80))
 
-a = conv(filters=128,kernel_size=(3,3),pool_size=(2,2),momentum=0.8)
-b = dense(units=120,rate=0.5)
+# print(graph.tuple)
+
+sys.exit()
+
+# ezn = eznet()
+#
+# ezn.input(data.X)
+# ezn.add(conv(filters=128,kernel_size=(3,3),pool_size=(2,2),momentum=0.8))
+# ezn.add(conv(filters=128,kernel_size=(3,3),pool_size=(2,2),momentum=0.8))
+# ezn.add(GlobalAveragePooling2D())
+# ezn.add(dense(units=120,rate=0.5))
+# ezn.add(dense(units=80,rate=0.5))
+# ezn.output(Dense(4,activation="softmax"))
+# model = ezn.gen()
+
+
+
+
+# dense(units=120,rate=0.5)
 print(a)
-print(b)
 
 sys.exit()
 

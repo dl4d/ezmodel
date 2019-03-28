@@ -144,6 +144,27 @@ def jaccard_distance_loss(y_true, y_pred, smooth=100):
     return (1 - jac) * smooth
 
 
+
+def iou_metrics(y_true, y_pred, smooth=1):
+    """
+    IoU = (|X &amp; Y|)/ (|X or Y|)
+
+    Ref: https://www.kaggle.com/c/data-science-bowl-2018/discussion/51553
+    """
+    intersection = K.sum(K.abs(y_true * y_pred), axis=-1)
+    union = K.sum((y_true,-1) + K.sum(y_pred,-1)) - intersection
+    return (intersection + smooth) / ( union + smooth)
+
+def iou_loss(y_true, y_pred):
+    """
+    IoU = (|X &amp; Y|)/ (|X or Y|)
+
+    Ref: https://www.kaggle.com/c/data-science-bowl-2018/discussion/51553
+    """
+    return -iou_metrics(y_true, y_pred)
+
+
+
 # KL divergeance + reconstruction loss
 def vae_loss(z_mean,z_log_var):
 
