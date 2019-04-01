@@ -1,18 +1,9 @@
 from keras.models import *
 from keras.layers import *
 from keras.applications import *
-# from keras.applications.vgg16 import VGG16
-# from keras.applications.vgg19 import VGG19
-# from keras.applications.xception import Xception
-# from keras.applications.mobilenet import MobileNet
-# from keras.applications.mobilenet_v2 import MobileNetV2
-# from keras.applications.resnet50 import ResNet50
-# from keras.applications.inception_v3 import InceptionV3
 
-# from keras.applications.densenet import DenseNet121,DenseNet169,DenseNet201
-# from keras.applications.inception_resnet_v2 import InceptionResNetV2
-# from keras.applications.inception_v3 import InceptionV3
-# from keras.applications.nasnet import NASNetLarge,NASNetMobile
+from ezmodel.ezblocks4 import *
+
 import keras
 
 
@@ -622,4 +613,49 @@ def ResNet50(input=None,transformers=None,parameters=None):
     outputs = SmartClassificationRegressionOutput(input0,x)
 
     model = Model(inputs=inputs, outputs=outputs)
+    return model
+
+
+# UNET definition using ezblocks4 to take into account depth
+def UNET2(input=None,transformers=None,parameters=None):
+
+    n = 64
+    depth=4
+    if parameters is not None:
+        if "n" in parameters:
+            n = parameters["n"]
+        if "depth" in parameters:
+            depth=parameters["depth"]
+
+    conv = Block().define(
+        """
+        Conv2D(filters=?,kernel_size=(3,3),activation="relu",padding="same")
+        Conv2D(filters=?,kernel_size=(3,3),activation="relu",padding="same")
+        """
+    )
+
+    inputs = SmartInput(input)
+
+    x = inputs
+
+    #Encoder
+    convs=[]
+    for i in range(depth):
+        x = conv(filters=n*(2**i)) (x)
+        convs.append(x)
+        x = MaxPooling2D(pool_size=(2,2)) (x)
+
+    #bottleneck
+    x = conv(filters=n*(2**(i+1))) (x)
+
+    #Decoder
+    for i in reversed(range(depth)):
+        x = Conv2DTranspose(n*(2**i), (2, 2), strides=(2, 2), padding='same')(x)
+        x = concatenate([x, convs[i]], axis=3)
+        x = conv(filters=n*(2**i))(x)
+
+    #Output
+    x = Conv2D(1, (1, 1), activation='sigmoid')(x)
+
+    model = Model(inputs=inputs, outputs=x)
     return model

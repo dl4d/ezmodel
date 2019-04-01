@@ -1,6 +1,7 @@
 import keras.backend as K
 import tensorflow as tf
 import keras
+import numpy as np
 
 def f1_metrics(y_true, y_pred):
     """
@@ -156,15 +157,39 @@ def IoU_loss(y_true, y_pred):
 
 
 # KL divergeance + reconstruction loss
-def vae_loss(z_mean,z_log_var):
+# def vae_loss(z_mean,z_log_var):
+#     print("ici")
+#
+#     def keras_vae_loss(y_true, y_pred):
+#         xent_loss = keras.losses.mse(y_true, y_pred)
+#         kl_loss = - 0.5 * K.mean(1 + z_log_var - K.square(z_mean) - K.exp(z_log_var), axis=-1)
+#         return  xent_loss+kl_loss
+#
+#     return keras_vae_loss
+
+def reconstruction_loss(y_true,y_pred):
+    return keras.losses.mse(K.flatten(y_true), K.flatten(y_pred))
+
+def vae_loss(z_mean,z_log_var,input_shape):
 
     def keras_vae_loss(y_true, y_pred):
-        xent_loss = keras.losses.mse(y_true, y_pred)
-        kl_loss = - 0.5 * K.mean(1 + z_log_var - K.square(z_mean) - K.exp(z_log_var), axis=-1)
-        return  xent_loss+kl_loss
+        # xent_loss = reconstruction_loss(y_true,y_pred) * 128 * 128
+        # kl_loss = - 0.5 * K.mean(1 + z_log_var - K.square(z_mean) - K.exp(z_log_var), axis=-1)
+        rec_loss = reconstruction_loss(y_true,y_pred) * np.prod(input_shape)
+        kl_loss = 1 + z_log_var - K.square(z_mean) - K.exp(z_log_var)
+        kl_loss = K.sum(kl_loss,axis=-1)
+        kl_loss *= -0.5
+        return K.mean(rec_loss + kl_loss)
+        # return  xent_loss+kl_loss
 
     return keras_vae_loss
+
 
 # PSNR (Signal Noise Ratio) loss
 def psnr_loss(y_true,y_pred):
   return -10.0 * K.log(1.0 / (K.mean(K.square(y_pred - y_true)))) / K.log(10.0)
+
+
+# wasserstein_loss
+def wasserstein_loss(y_true, y_pred):
+    return K.mean(y_true * y_pred)

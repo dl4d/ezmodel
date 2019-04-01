@@ -42,7 +42,7 @@ vae , z_mean, z_log_var = VAE(input=train,transformers=transformers,parameters=p
 # [Keras Optimizer, Loss & Metrics]  ------------------------------------------
 optimizer ={
     "optimizer" : keras.optimizers.Adam(lr=1e-3),
-    "loss"      : ezlosses.vae_loss(z_mean,z_log_var),
+    "loss"      : ezlosses.vae_loss(z_mean,z_log_var,original_dim),
     "metrics"   : [ezlosses.reconstruction_loss]
 }
 
