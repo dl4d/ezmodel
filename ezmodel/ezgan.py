@@ -206,7 +206,8 @@ class ezgan:
 
 
 
-    def plotGeneratedImages(self,epoch, logdir=None, show=False, examples=25, dim=(5, 5), figsize=(20, 20)):
+    # def plotGeneratedImages(self,epoch, logdir=None, show=False, examples=25, dim=(5, 5), figsize=(20, 20)):
+    def plotGeneratedImages(self,epoch, logdir=None, show=False, examples=25, dim=(5, 5), figsize=(8, 6)):
         noise = np.random.normal(0, 1, size=[examples, self.generator.input_shape[1]])
         generatedImages = self.generator.predict(noise)
 
