@@ -202,11 +202,11 @@ class ezgan:
                 self.plotGeneratedImages(epoch,logdir=parameters["logdir"])
             else:
                 if parameters["show"] is True:
-                    self.plotGeneratedImages(self,epoch, logdir=None, show=True,examples=25, dim=(5, 5), figsize=(20, 20)):
+                    self.plotGeneratedImages(self,epoch, logdir=None, show=True,examples=25, dim=(5, 5), figsize=(20, 20))
 
 
 
-    def plotGeneratedImages(self,epoch, logdir=None, examples=25, dim=(5, 5), figsize=(20, 20)):
+    def plotGeneratedImages(self,epoch, logdir=None, show=False, examples=25, dim=(5, 5), figsize=(20, 20)):
         noise = np.random.normal(0, 1, size=[examples, self.generator.input_shape[1]])
         generatedImages = self.generator.predict(noise)
 
