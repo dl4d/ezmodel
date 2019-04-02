@@ -202,7 +202,7 @@ class ezgan:
                 self.plotGeneratedImages(epoch,logdir=parameters["logdir"])
             else:
                 if parameters["show"] is True:
-                    self.plotGeneratedImages(self,epoch, logdir=None, show=True,examples=25, dim=(5, 5), figsize=(20, 20))
+                    self.plotGeneratedImages(epoch, logdir=None, show=True)
 
 
 

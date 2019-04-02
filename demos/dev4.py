@@ -59,6 +59,8 @@ parameters = {
     "batch_size": 32,
     "n_discriminator": 15,
     "discriminator_clip_value" : 0.01,
-    "logdir" : "C:\\Users\\daian\\Desktop\\LOGDIR\\GAN-BACTERIA\\"
+    # "logdir" : "C:\\Users\\daian\\Desktop\\LOGDIR\\GAN-BACTERIA\\"
+    "logdir" : None,
+    "show" : True
 }
 gan.train(parameters)
