@@ -200,6 +200,9 @@ class ezgan:
 
             if parameters["logdir"] is not None:
                 self.plotGeneratedImages(epoch,logdir=parameters["logdir"])
+            else:
+                if parameters["show"] is True:
+                    self.plotGeneratedImages(self,epoch, logdir=None, show=True,examples=25, dim=(5, 5), figsize=(20, 20)):
 
 
 
@@ -216,11 +219,17 @@ class ezgan:
                 cmap="gray"
             else:
                 plt.imshow(generatedImages[i])
+
             plt.axis('off')
 
         plt.tight_layout()
 
+        if show:
+            plt.show()
+
+
         if logdir is not None:
-            plt.savefig(os.path.join(logdir,'gan_epoch_'+str(epoch)+'.png'))
+            if show is False:
+                plt.savefig(os.path.join(logdir,'gan_epoch_'+str(epoch)+'.png'))
 
         plt.close()
