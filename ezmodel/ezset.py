@@ -607,8 +607,13 @@ class ezset:
                 r = image.resize((resize[0],resize[1]), Image.NEAREST)
             im.append(r)
         imgarray=list();
+        removed = 0
         for i in range(len(im)):
             tmp = np.array(im[i])
+            #Remove alpha
+            # if (len(tmp.shape)<3):
+            #     removed += 1
+            #     continue
             imgarray.append(tmp)
         imgarray = np.asarray(imgarray)
 
@@ -624,6 +629,7 @@ class ezset:
         self.y = np.asarray(self.labels)
 
         print ("[X] Images conversion to Keras format: Done")
+        print ("--- Removed : ", str(removed)," images")
         print("\n")
 
     def from_npz(self,parameters):
@@ -652,6 +658,12 @@ class ezset:
         else:
             self.name = "NoName"
         print("[X] Loading from : " + parameters["path"])
+
+        for k,v in enumerate(self.synsets):
+            c = np.where(self.y==k)[0].shape[0]
+            print("--- ", self.synsets[k],":",str(c), " images" )
+
+
         print ("--- 'X' and 'y' tensors have been created into current ezset object.")
         print("\n")
 
@@ -775,6 +787,11 @@ class ezset:
     def autoencoder(self):
         self.orig_y = np.copy(self.y)
         self.y = np.copy(self.X)
+
+    def cut(self,n):
+        self.X = self.X[:n]
+        self.y = self.y[:n]
+        print('[X] Set has been cut to keep only : ', self.X.shape[0], ' elements !')
 
     def undersampling(self,min):
         #squeeze because npz add a singleton dimension once saved

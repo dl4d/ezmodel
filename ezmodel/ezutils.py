@@ -279,8 +279,10 @@ def show_images(data,n=16,samples=None):
             else:
                 plt.imshow(dispY[r[i]])
             plt.axis("off")
+            # axes.axis("off")
 
-    plt.axis("off")
+    # plt.axis("off")
+    axes.axis("off")
     plt.show()
 
     return r

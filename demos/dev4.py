@@ -47,7 +47,7 @@ gan.basic_discriminator(data=data,parameters=parameters)
 
 # Gan -------------------------------------------------------------------------
 optimizer_gan = {
-    "optimizer" : keras.optimizers.RMSprop(lr=0.05),
+    "optimizer" : keras.optimizers.RMSprop(lr=0.00005),
     "loss"      : ezlosses.wasserstein_loss,
     "metrics"   : ["accuracy"]
 }
