@@ -267,6 +267,7 @@ def show_images(data,n=16,samples=None):
             if dispY is not None:
                 if len(dispY.shape)==4:
                     mask = True
+        plt.axis("off")
 
     if mask==True:
         fig,axes = plt.subplots(nrows = int(math.sqrt(n)),ncols = int(math.sqrt(n)))
