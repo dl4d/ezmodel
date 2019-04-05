@@ -281,8 +281,8 @@ def show_images(data,n=16,samples=None):
             plt.axis("off")
             # axes.axis("off")
 
-    # plt.axis("off")
-    axes.axis("off")
+    plt.axis("off")
+    # axes.axis("off")
     plt.show()
 
     return r
